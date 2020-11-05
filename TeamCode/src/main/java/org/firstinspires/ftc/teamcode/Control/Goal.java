@@ -44,11 +44,8 @@ public class Goal {
 
         for (setupType type: setup) {
             switch (type) {
-                case teleop:
+                case autonomous:
                     setupDrivetrain();
-                    break;
-                case claw:
-                    setupClaw();
                     break;
             }
 
@@ -155,14 +152,18 @@ public class Goal {
         motorBR = motor(motorBRS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
 
-        motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
-    }
-
-    public void setupClaw() throws InterruptedException {
         claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0);
 
         motorDriveMode(EncoderMode.OFF, claw);
+
+
+        motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
+    }
+
+    public void setupClaw() throws InterruptedException {
+
+
     }
 
 

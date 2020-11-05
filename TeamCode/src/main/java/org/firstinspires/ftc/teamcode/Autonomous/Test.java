@@ -9,12 +9,11 @@ import org.firstinspires.ftc.teamcode.Control.Goal;
 @Autonomous(name="Test Drivetrain", group = "basic")
 public class Test extends AutonomousControl {
     private ElapsedTime runtime = new ElapsedTime();
-//hihihihihil
-    //jijij
+
     @Override
     public void runOpMode() throws InterruptedException {
 
-        setup(runtime, Goal.setupType.teleop, Goal.setupType.claw);
+        setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
 

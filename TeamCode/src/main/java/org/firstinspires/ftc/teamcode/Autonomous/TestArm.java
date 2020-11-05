@@ -13,7 +13,7 @@ public class TestArm extends AutonomousControl {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        setup(runtime, Goal.setupType.teleop, Goal.setupType.claw);
+        setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
 
