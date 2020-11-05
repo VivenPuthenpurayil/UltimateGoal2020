@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,9 +19,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_COREHEXMOTOR_INCH;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_GOBUILDA435RPM_INCH;
@@ -88,24 +97,39 @@ public class Goal {
 
 
     // Vuforia Variables
-    public final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    public final boolean PHONE_IS_PORTRAIT = false;
-    public final String VUFORIA_KEY =
-             " AYzLd0v/////AAABmR035tu9m07+uuZ6k86JLR0c/MC84MmTzTQa5z2QOC45RUpRTBISgipZ2Aop4XzRFFIvrLEpsop5eEBl5yu5tJxK6jHbMppJyWH8lQbvjz4PAK+swG4ALuz2M2MdFXWl7Xh67s/XfIFSq1UJpX0DgwmZnoDCYHmx/MnFbyxvpWIMLZziaJqledMpZtmH11l1/AS0oH+mrzWQLB57w1Ur0FRdhpxcrZS9KG09u6I6vCUc8EqkHqG7T2Zm4QdnytYWpVBBu17iRNhmsd3Ok3w8Pn22blBYRo6dZZ8oscyQS1ZtilM1YT49ORQHc8mu/BMWh06LxdstWctSiGiBV0+Wn3Zk++xQ750c64lg3QLjNkXc";
-    public final float mmPerInch        = 25.4f;
-    public final float mmTargetHeight   = (6) * mmPerInch;
-    public final float stoneZ = 2.00f * mmPerInch;
-    public final float bridgeZ = 6.42f * mmPerInch;
-    public final float bridgeY = 23 * mmPerInch;
-    public final float bridgeX = 5.18f * mmPerInch;
-    public final float bridgeRotY = 59;
-    public final float bridgeRotZ = 180;
-    public final float halfField = 72 * mmPerInch;
-    public final float quadField  = 36 * mmPerInch;
+    public static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    public static final boolean PHONE_IS_PORTRAIT = false  ;
 
+    public final String VUFORIA_KEY =
+            " AYzLd0v/////AAABmR035tu9m07+uuZ6k86JLR0c/MC84MmTzTQa5z2QOC45RUpRTBISgipZ2Aop4XzRFFIvrLEpsop5eEBl5yu5tJxK6jHbMppJyWH8lQbvjz4PAK+swG4ALuz2M2MdFXWl7Xh67s/XfIFSq1UJpX0DgwmZnoDCYHmx/MnFbyxvpWIMLZziaJqledMpZtmH11l1/AS0oH+mrzWQLB57w1Ur0FRdhpxcrZS9KG09u6I6vCUc8EqkHqG7T2Zm4QdnytYWpVBBu17iRNhmsd3Ok3w8Pn22blBYRo6dZZ8oscyQS1ZtilM1YT49ORQHc8mu/BMWh06LxdstWctSiGiBV0+Wn3Zk++xQ750c64lg3QLjNkXc";
+
+    // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
+    // We will define some constants and conversions here
+    public static final float mmPerInch        = 25.4f;
+    public static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+
+    // Constants for perimeter targets
+    public static final float halfField = 72 * mmPerInch;
+    public static final float quadField  = 36 * mmPerInch;
+
+    // Class Members
     public OpenGLMatrix lastLocation = null;
     public VuforiaLocalizer vuforia = null;
+
+    /**
+     * This is the webcam we are to use. As with other hardware devices such as motors and
+     * servos, this device is identified using the robot configuration tool in the FTC application.
+     */
     public WebcamName webcamName = null;
+
+    public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+    public VuforiaTrackables targetsUltimateGoal;
+    public boolean targetVisible = false;
+    public OpenGLMatrix robotFromCamera;
+    public int cameraMonitorViewId;
+    public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+
 
     //----------------CONFIGURATION FIELDS--------------------
     public DcMotor[] drivetrain;   //set in motorDriveMode() for drivetrain movement functions
@@ -164,6 +188,127 @@ public class Goal {
     public void setupClaw() throws InterruptedException {
 
 
+    }
+
+    public void setupVuforia() throws InterruptedException{
+        float phoneXRotate    = 0;
+        float phoneYRotate    = 0;
+        float phoneZRotate    = 0;
+
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
+         * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
+         */
+        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+
+        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+
+        /**
+         * We also indicate which camera on the RC we wish to use.
+         */
+        parameters.cameraName = webcamName;
+
+        // Make sure extended tracking is disabled for this example.
+        parameters.useExtendedTracking = false;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Load the data sets for the trackable objects. These particular data
+        // sets are stored in the 'assets' part of our application.
+        targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
+        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
+        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
+        redTowerGoalTarget.setName("Red Tower Goal Target");
+        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
+        redAllianceTarget.setName("Red Alliance Target");
+        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
+        blueAllianceTarget.setName("Blue Alliance Target");
+        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
+        frontWallTarget.setName("Front Wall Target");
+
+        allTrackables.addAll(targetsUltimateGoal);
+
+        /**
+         * In order for localization to work, we need to tell the system where each target is on the field, and
+         * where the phone resides on the robot.  These specifications are in the form of <em>transformation matrices.</em>
+         * Transformation matrices are a central, important concept in the math here involved in localization.
+         * See <a href="https://en.wikipedia.org/wiki/Transformation_matrix">Transformation Matrix</a>
+         * for detailed information. Commonly, you'll encounter transformation matrices as instances
+         * of the {@link OpenGLMatrix} class.
+         *
+         * If you are standing in the Red Alliance Station looking towards the center of the field,
+         *     - The X axis runs from your left to the right. (positive from the center to the right)
+         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
+         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
+         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
+         *
+         * Before being transformed, each target image is conceptually located at the origin of the field's
+         *  coordinate system (the center of the field), facing up.
+         */
+
+        //Set the position of the perimeter targets with relation to origin (center of field)
+        redAllianceTarget.setLocation(OpenGLMatrix
+                .translation(0, -halfField, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+
+        blueAllianceTarget.setLocation(OpenGLMatrix
+                .translation(0, halfField, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+        frontWallTarget.setLocation(OpenGLMatrix
+                .translation(-halfField, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+
+        // The tower goal targets are located a quarter field length from the ends of the back perimeter wall.
+        blueTowerGoalTarget.setLocation(OpenGLMatrix
+                .translation(halfField, quadField, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+        redTowerGoalTarget.setLocation(OpenGLMatrix
+                .translation(halfField, -quadField, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+
+        //
+        // Create a transformation matrix describing where the phone is on the robot.
+        //
+        // NOTE !!!!  It's very important that you turn OFF your phone's Auto-Screen-Rotation option.
+        // Lock it into Portrait for these numbers to work.
+        //
+        // Info:  The coordinate frame for the robot looks the same as the field.
+        // The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
+        // Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
+        //
+        // The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
+        // pointing to the LEFT side of the Robot.
+        // The two examples below assume that the camera is facing forward out the front of the robot.
+
+        // We need to rotate the camera around it's long axis to bring the correct camera forward.
+        if (CAMERA_CHOICE == BACK) {
+            phoneYRotate = -90;
+        } else {
+            phoneYRotate = 90;
+        }
+
+        // Rotate the phone vertical about the X axis if it's in portrait mode
+        if (PHONE_IS_PORTRAIT) {
+            phoneXRotate = 90 ;
+        }
+
+        // Next, translate the camera lens to where it is on the robot.
+        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+
+        robotFromCamera = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
     }
 
 
