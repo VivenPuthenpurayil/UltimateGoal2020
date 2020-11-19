@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Control.Goal;
 
 public abstract class Central extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
-
+//hi
     public Goal rob;
 
     public Goal.movements[] allMovements = {Goal.movements.forward, Goal.movements.backward, Goal.movements.right, Goal.movements.left, Goal.movements.tr, Goal.movements.bl, Goal.movements.tl, Goal.movements.br, Goal.movements.cw, Goal.movements.ccw};
