@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Control;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.Control.Central;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
 public class Goal {
 
 
-    public Goal(HardwareMap hardwareMap, ElapsedTime runtime, Central central, setupType... setup) throws InterruptedException {
+    public Goal(HardwareMap hardwareMap, ElapsedTime runtime, org.firstinspires.ftc.teamcode.Control.Central central, setupType... setup) throws InterruptedException {
         this.hardwareMap = hardwareMap;
         this.runtime = runtime;
         this.central = central;
@@ -70,7 +71,7 @@ public class Goal {
 
     // important non-confdiguration field
     public ElapsedTime runtime;     //set in constructor to the runtime of running class
-    public Central central;
+    public org.firstinspires.ftc.teamcode.Control.Central central;
     public HardwareMap hardwareMap;
 
     public boolean target = false;

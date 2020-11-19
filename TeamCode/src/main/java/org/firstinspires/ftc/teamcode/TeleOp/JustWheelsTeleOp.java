@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Control.Crane;
-import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
 @TeleOp(name = "WheelTeleOp", group = "Concept")
 

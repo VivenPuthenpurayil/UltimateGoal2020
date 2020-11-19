@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Control;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
