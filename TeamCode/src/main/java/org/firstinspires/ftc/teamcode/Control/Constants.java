@@ -59,20 +59,16 @@ public class Constants {
     public static final String motorFLS = "motorFL";
     public static final String motorBRS = "motorBR";
     public static final String motorBLS = "motorBL";
+    public static final String flys = "fly";
+    public static final String collections = "collection";
+
+
     public static final String claws = "claw";
-    public static final String flywheelS = "fly";
-   // public static final String intakes = "intake";
+   // public static final String grabbers = "grabber";
 
     public static final String pincher = "pinch";
 
-  //  public static final String lultras2 = "lultrasonic2";
-    //public static final String lultras1 = "lultrasonic1";
-    //public static final String bultras1 = "bultrasonic1";
-    //public static final String bultras2 = "bultrasonic2";
-    //public static final String rultras1 = "rultrasonic1";
 
-
-    //public static final String imuS = "imu";
-
+    public static final String imuS = "imu";
 
 }

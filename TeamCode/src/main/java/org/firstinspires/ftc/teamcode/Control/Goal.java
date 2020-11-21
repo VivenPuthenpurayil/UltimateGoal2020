@@ -34,14 +34,14 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_COREHEXMOTOR_INCH;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_GOBUILDA435RPM_INCH;
 import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
-import static org.firstinspires.ftc.teamcode.Control.Constants.flywheelS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
+import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
+import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
-
-//import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 
 public class Goal {
 
@@ -55,7 +55,7 @@ public class Goal {
 
         for (setupType type: setup) {
             switch (type) {
-                case teleop:
+                case autonomous:
                     setupDrivetrain();
                     break;
             }
@@ -140,7 +140,9 @@ public class Goal {
     public DcMotor motorFL;
     public DcMotor motorBR;
     public DcMotor motorBL;
+
     public DcMotor fly;
+    public DcMotor collection;
 
     public DcMotor claw;
 
@@ -164,7 +166,7 @@ public class Goal {
         imuparameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
         imuparameters.loggingEnabled = true; //copypasted from BNO055IMU sample code, no clue what this does
         imuparameters.loggingTag = "imu"; //copypasted from BNO055IMU sample code, no clue what this does
-        //imu = hardwareMap.get(BNO055IMUImpl.class, imuS);
+        imu = hardwareMap.get(BNO055IMUImpl.class, imuS);
         imu.initialize(imuparameters);
         initorient = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         central.telemetry.addData("IMU status", imu.getSystemStatus());
@@ -178,12 +180,16 @@ public class Goal {
         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR = motor(motorBRS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        fly = motor(flywheelS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+
+        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
+        //claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0);
 
-        motorDriveMode(EncoderMode.OFF, claw);
-
+        motorDriveMode(EncoderMode.OFF, claw, fly, collection);
 
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
@@ -825,44 +831,44 @@ public class Goal {
     }
 
     public static double[] anyDirection(double speed, double angleDegrees) {
-        double theta = Math.toRadians(angleDegrees);
-        double beta = Math.atan(yToXRatio);
+    double theta = Math.toRadians(angleDegrees);
+    double beta = Math.atan(yToXRatio);
 
-        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
 
-        double[] retval = {v1, v2};
-        return retval;
+    double[] retval = {v1, v2};
+    return retval;
     }
 
     public static double[] anyDirectionRadians(double speed, double angleRadians) {
-        double theta = angleRadians;
-        double beta = Math.atan(yToXRatio);
+    double theta = angleRadians;
+    double beta = Math.atan(yToXRatio);
 
-        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
 
-        double[] retval = {v1, v2};
-        return retval;
+    double[] retval = {v1, v2};
+    return retval;
     }
 
     public void driveTrainMovementAngle(double speed, double angle) {
 
-        double[] speeds = anyDirection(speed, angle);
-        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+    double[] speeds = anyDirection(speed, angle);
+    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
 
     }
 
     public void driveTrainMovementAngleRadians(double speed, double angle) {
 
-        double[] speeds = anyDirectionRadians(speed, angle);
-        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+    double[] speeds = anyDirectionRadians(speed, angle);
+    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
 
     }
 
