@@ -12,7 +12,7 @@ public class Test extends AutonomousControl {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+//hi
         setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
