@@ -6,10 +6,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="Test Drivetrain", group = "basic")
+@Autonomous(name="Test", group = "basic")
 public class Test extends AutonomousControl {
-    private ElapsedTime runtime = new ElapsedTime();
-
     @Override
     public void runOpMode() throws InterruptedException {
 //hi
@@ -21,11 +19,9 @@ public class Test extends AutonomousControl {
 
         //rob.collection.setPower(-.7);
         //sleep(20000);
-        rob.fly.setPower(0.75);
+        rob.fly.setPower(-1);
         sleep(10000);
 
         }
-
-
     }
 }
