@@ -19,6 +19,7 @@ public class Test extends AutonomousControl {
 
         //rob.collection.setPower(-.7);
         //sleep(20000);
+
         rob.fly.setPower(-1);
         sleep(10000);
 
