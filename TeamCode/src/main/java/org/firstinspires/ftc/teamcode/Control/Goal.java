@@ -42,6 +42,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
+import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 
 public class Goal {
 
@@ -145,7 +146,7 @@ public class Goal {
     public DcMotor collection;
 
     public DcMotor claw;
-
+    public Servo whack;
     public Servo pinch;
 
     public BNO055IMUImpl imu;
@@ -182,6 +183,7 @@ public class Goal {
         motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
 
         fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
 
 

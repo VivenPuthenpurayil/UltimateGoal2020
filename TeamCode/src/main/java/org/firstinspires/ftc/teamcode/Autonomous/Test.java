@@ -18,10 +18,12 @@ public class Test extends AutonomousControl {
         if (opModeIsActive()){
 
         //rob.collection.setPower(-.7);
-        //sleep(20000);
-
+        //sleep(20000
         rob.fly.setPower(-1);
+        sleep(5000);
+        rob.whack.setPosition(1);
         sleep(10000);
+
 
         }
     }
