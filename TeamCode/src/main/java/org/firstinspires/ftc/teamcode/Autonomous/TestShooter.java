@@ -6,25 +6,26 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="Test", group = "basic")
-public class Test extends AutonomousControl {
+@Autonomous(name="Test Shooter", group = "basic")
+public class TestShooter extends AutonomousControl {
+    private ElapsedTime runtime = new ElapsedTime();
+
     @Override
     public void runOpMode() throws InterruptedException {
-//hi
+
         setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
 
         if (opModeIsActive()){
 
-        //rob.collection.setPower(-.7);
-        //sleep(20000
-        rob.fly.setPower(-1);
-        sleep(5000);
-        //rob.whack.setPosition(1);
-        //sleep(10000);
-
+            //rob.encodeCoreHexMovement(0.75, 3, 2, 100, Goal.movements.clawIn, rob.claw);
+            //rob.pinch.setPosition(0.5);
+            rob.fly.setPower(-1);
+            sleep(5000);
 
         }
+
+
     }
 }
