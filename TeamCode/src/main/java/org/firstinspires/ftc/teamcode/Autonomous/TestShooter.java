@@ -18,7 +18,7 @@ public class TestShooter extends AutonomousControl {
         telemetry.update();
 
         if (opModeIsActive()){
-            rob.fly.setPower(1 );
+            rob.fly.setPower(0.8);
             //sleep(5000);
             sleep(30000);
         }

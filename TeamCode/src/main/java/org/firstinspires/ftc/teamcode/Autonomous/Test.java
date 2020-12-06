@@ -16,16 +16,14 @@ public class Test extends AutonomousControl {
         telemetry.update();
 
         if (opModeIsActive()){
-
-        rob.lifter.setPosition(.5);
-        //rob.collection.setPower(-1);
-        //sleep(20000);
-        //rob.fly.setPower(-1);
-        //sleep(5000);
-       // rob.whack.setPosition(.6);
-        //sleep(10000);
-
-
+            for(int i = 0; i<=2; i++) {
+                rob.fly.setPower(0.7 );
+                sleep(3050);
+                rob.whack.setPosition(0.6);
+                sleep(900);
+                rob.whack.setPosition(0);
+                sleep(1000);
+            }
         }
     }
 }
