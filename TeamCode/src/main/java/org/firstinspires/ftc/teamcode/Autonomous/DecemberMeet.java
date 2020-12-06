@@ -28,7 +28,7 @@ public class DecemberMeet extends AutonomousControl {
             rob.encoderMovement(.2, 5, 20,0, Goal.movements.backward, rob.claw);
 
             //move to right before white line
-            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.backward);
 
             rob.driveTrainEncoderMovement(1,3,20,0,Goal.movements.left);
 

@@ -18,12 +18,9 @@ public class TestShooter extends AutonomousControl {
         telemetry.update();
 
         if (opModeIsActive()){
-
-            //rob.encodeCoreHexMovement(0.75, 3, 2, 100, Goal.movements.clawIn, rob.claw);
-            //rob.pinch.setPosition(0.5);
-            rob.fly.setPower(-1);
-            sleep(5000);
-
+            rob.fly.setPower(1 );
+            //sleep(5000);
+            sleep(30000);
         }
 
 
