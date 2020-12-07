@@ -53,6 +53,7 @@ public class Goal {
         this.runtime = runtime;
         this.central = central;
 
+
         StringBuilder i = new StringBuilder();
 
         for (setupType type: setup) {
@@ -145,7 +146,6 @@ public class Goal {
 
     public DcMotor fly;
     public DcMotor collection;
-
     public DcMotor claw;
     public Servo whack;
     public Servo pinch;
@@ -187,9 +187,9 @@ public class Goal {
         fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , 0.01);
+        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .2);
 
-        //claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0);
 
         motorDriveMode(EncoderMode.OFF, claw, fly, collection);

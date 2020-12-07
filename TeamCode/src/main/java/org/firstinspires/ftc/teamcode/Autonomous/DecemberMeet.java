@@ -19,19 +19,37 @@ public class DecemberMeet extends AutonomousControl {
         if (opModeIsActive()){
 
             //pick up wobble goal
-            rob.encoderMovement(.2, 5, 20,0, Goal.movements.forward, rob.claw);
+            rob.claw.setPower(-0.4);
+            sleep(750);
+            rob.claw.setPower(0);
+            sleep(250);
+
 
             //move to red square
-            rob.driveTrainEncoderMovement(1,72,20,0,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
+            rob.driveTrainEncoderMovement(1,60,20,0,Goal.movements.forward);
 
             //drop wobble goal
-            rob.encoderMovement(.2, 5, 20,0, Goal.movements.backward, rob.claw);
+            rob.pinch.setPosition(1);
+            sleep(1000);
 
             //move to right before white line
-            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.backward);
 
-            rob.driveTrainEncoderMovement(1,3,20,0,Goal.movements.left);
 
+
+            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.backward);
+
+            rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.left);
+
+            rob.driveTrainEncoderMovement(1,22,20,0,Goal.movements.cw);
+
+            rob.pinch.setPosition(0.8);
+            sleep(500);
+            rob.claw.setPower(0.4);
+            sleep(700);
+            rob.driveTrainEncoderMovement(0.6,17,20,0,Goal.movements.forward);
+
+/*
             //shoot powershots
             for(int i = 0; i < 3;i++) {
                 rob.driveTrainEncoderMovement(1,2,20,0,Goal.movements.left);
@@ -47,7 +65,7 @@ public class DecemberMeet extends AutonomousControl {
             //move to white line
             rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
 
-
+*/
         }
     }
 }
