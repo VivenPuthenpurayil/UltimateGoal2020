@@ -60,7 +60,34 @@ public class Goal {
             switch (type) {
                 case autonomous:
                     setupDrivetrain();
+                    setupStorage();
+                    setupCollection();
+                    setupFly();
+                    setupWobbleGoalSystem();
                     break;
+                case teleop:
+                    setupDrivetrain();
+                    setupStorage();
+                    setupCollection();
+                    setupFly();
+                    setupWobbleGoalSystem();
+                    break;
+                case storage:
+                    setupStorage();
+                    break;
+                case wobblegoal:
+                    setupWobbleGoalSystem();
+                    break;
+                case flywheel:
+                    setupFly();
+                    break;
+                case collectionsystem:
+                    setupCollection();
+                    break;
+                case drivetrain_system:
+                    setupDrivetrain();
+                    break;
+
             }
 
             i.append(type.name()).append(" ");
@@ -178,26 +205,46 @@ public class Goal {
 
     }
 
+
+
+
     public void setupDrivetrain() throws InterruptedException {
         motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR = motor(motorBRS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
 
-        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
-        collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .2);
-
-        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0);
-
-        motorDriveMode(EncoderMode.OFF, claw, fly, collection);
-
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
-    public void setupClaw() throws InterruptedException {
+    public void setupStorage() throws InterruptedException {
+        whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
+        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , 1);
+
+        encoder(EncoderMode.OFF, fly);
+
+    }
+
+    public void setupCollection() throws InterruptedException{
+        collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+
+        encoder(EncoderMode.OFF, collection);
+
+    }
+
+    public void setupFly() throws InterruptedException{
+        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+
+        encoder(EncoderMode.OFF, fly);
+
+
+    }
+
+    public void setupWobbleGoalSystem() throws InterruptedException {
+        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0.2);
+
+        encoder(EncoderMode.OFF, claw);
 
 
     }
@@ -386,6 +433,7 @@ public class Goal {
     }
 
     public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {
+
         switch (mode) {
             case ON:
                 for (DcMotor i : motor) {
@@ -776,7 +824,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, endgame, drive, camera, claw, tfod, bSystem, foundation, yellow, encoder, intake, ultrasoinc, imu;
+        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal;
     }
 
 

@@ -16,6 +16,7 @@ public class CurrentTeleop extends TeleOpControl {
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
+        int collectionUp = 0;
 
         setup(runtime, Goal.setupType.teleop);
 
@@ -24,11 +25,17 @@ public class CurrentTeleop extends TeleOpControl {
         while (opModeIsActive()){
             standardGamepadData();
 
+
+
+
             if (gamepad1.y){
                 yToggle = !yToggle;
             }
 
             if (!yToggle) {
+
+
+
                 if (g(0)) {
                     rob.driveTrainMovement(fb, Goal.movements.forward);
                 } else if (g(2)) {
@@ -54,7 +61,17 @@ public class CurrentTeleop extends TeleOpControl {
                 } else {
                     rob.stopDrivetrain();
                 }
+
+                if (gamepad1.right_trigger>.2){
+                    collectionUp ^= 1;
+                    rob.collection.setPower(-collectionUp);
+                }
+                else if (gamepad1.left_trigger > .2){
+                    rob.collection.setPower(1);
+                    collectionUp = 0;
+                }
             }
+
             else {
                 if (g(0)) {
                     rob.driveTrainMovement(0.5, Goal.movements.left);
@@ -83,31 +100,36 @@ public class CurrentTeleop extends TeleOpControl {
                 }
             }
 
+
+
             //gamepad functions - lift, whack, and fly(x), wobblegoal up(y), wobblegoal down(a), wobblegoal pincher in(rb), wobblegoal pincher out(rb)
 
+
             if(gamepad1.y){
-                rob.claw.setPower(0.2);
+                rob.claw.setPower(-.75);
                 // make the up power 1 instead of 0.2
             }
             else if(gamepad1.a){
-                rob.claw.setPower(-0.2);
+                rob.claw.setPower(0.2);
             }
-            else if(gamepad1.right_bumper){
+            else{
+                rob.claw.setPower(0);
+            }
+             if(gamepad1.right_bumper){
                 //adjust position depending on how thingy works
-                rob.pinch.setPosition(0.2);
-            }
-            else if(gamepad1.left_bumper){
                 rob.pinch.setPosition(0);
             }
-            else if(gamepad1.x){
-                rob.fly.setPower(-1);
+            else if(gamepad1.left_bumper){
+                rob.pinch.setPosition(1);
+            }
+             if(gamepad1.x){
+                rob.fly.setPower(0.7 );
                 sleep(1000);
-                rob.lifter.setPosition(.15);
-                rob.whack.setPosition(.3);
-                rob.fly.setPower(-1);
-                sleep(3000);
+                rob.whack.setPosition(0.6);
+                sleep(1000);
                 rob.whack.setPosition(0);
-                rob.lifter.setPosition(0);
+                sleep(2000);
+                rob.fly.setPower(0);
             }
 
 

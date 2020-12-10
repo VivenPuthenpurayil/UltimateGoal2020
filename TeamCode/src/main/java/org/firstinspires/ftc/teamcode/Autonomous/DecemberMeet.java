@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="RealDealBois", group = "basic")
+@Autonomous(name="RealDealBois+(Anikitty+Emily*Yash=Yamilykitty)", group = "basic")
 
 public class DecemberMeet extends AutonomousControl {
     @Override
@@ -24,7 +24,6 @@ public class DecemberMeet extends AutonomousControl {
             rob.claw.setPower(0);
             sleep(250);
 
-
             //move to red square
             rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,60,20,0,Goal.movements.forward);
@@ -36,36 +35,58 @@ public class DecemberMeet extends AutonomousControl {
             //move to right before white line
 
 
-
-            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.backward);
+            rob.driveTrainEncoderMovement(1,43,20,0,Goal.movements.backward);
 
             rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.left);
 
-            rob.driveTrainEncoderMovement(1,22,20,0,Goal.movements.cw);
+            rob.driveTrainEncoderMovement(0.5,23,20,0,Goal.movements.cw);
+
+
 
             rob.pinch.setPosition(0.8);
             sleep(500);
             rob.claw.setPower(0.4);
-            sleep(700);
-            rob.driveTrainEncoderMovement(0.6,17,20,0,Goal.movements.forward);
+            sleep(900);
+            rob.driveTrainEncoderMovement(0.7,15,20,0,Goal.movements.forward);
 
-/*
+            rob.claw.setPower(-0.4);
+            sleep(500);
+            rob.claw.setPower(0);
+            sleep(500);
+            rob.pinch.setPosition(0);
+            sleep(750);
+            rob.claw.setPower(-0.4);
+            sleep(600);
+            rob.claw.setPower(0);
+            sleep(250);
+
+            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.backward);
+            rob.driveTrainEncoderMovement(0.5,23,20,0,Goal.movements.ccw);
+
+            rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.right);
+            rob.driveTrainEncoderMovement(1,43,20,0,Goal.movements.forward);
+
+            //drop wobble goal
+            rob.pinch.setPosition(1);
+            sleep(1000);
+
+            rob.driveTrainEncoderMovement(1,54,20,0,Goal.movements.left);
+
             //shoot powershots
-            for(int i = 0; i < 3;i++) {
-                rob.driveTrainEncoderMovement(1,2,20,0,Goal.movements.left);
-                rob.fly.setPower(-1);
-                sleep(1000);
-                rob.lifter.setPosition(.15);
-                rob.whack.setPosition(.3);
-                rob.fly.setPower(-1);
-                sleep(3000);
+            rob.lifter.setPosition(0.8);
+            sleep(500);
+            for(int i = 0; i<=2; i++) {
+                rob.fly.setPower(0.7 );
+                sleep(3050);
+                rob.whack.setPosition(0.6);
+                sleep(900);
                 rob.whack.setPosition(0);
+                sleep(1000);
             }
             rob.lifter.setPosition(0);
+            sleep(250);
             //move to white line
-            rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
-
-*/
+            //rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
         }
     }
 }
