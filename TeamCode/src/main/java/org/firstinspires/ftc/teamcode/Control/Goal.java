@@ -44,6 +44,8 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
+import static org.firstinspires.ftc.teamcode.Control.Constants.ultraFrontS;
+
 
 public class Goal {
 
@@ -180,6 +182,8 @@ public class Goal {
 
     public BNO055IMUImpl imu;
 
+    public ModernRoboticsI2cRangeSensor ultraFront;
+
 
     public double StrafetoTotalPower = 2.0/3.0;
 
@@ -247,6 +251,10 @@ public class Goal {
         encoder(EncoderMode.OFF, claw);
 
 
+    }
+
+    public void setupMapping() throws InterruptedException {
+        ultraFront = ultrasonicSensor(ultraFrontS);
     }
 
     public void setupVuforia() throws InterruptedException{
