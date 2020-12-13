@@ -69,7 +69,8 @@ public class Constants {
 
     public static final String pincher = "pinch";
     public static final String whacker = "whacker";
-    public static final String ultraFrontS = "ultraFront";
+    //public static final String ultraFrontS = "ultraFront";
+    public static final String leftSenseS = "leftSense";
 
     public static final String imuS = "imu";
 

@@ -44,7 +44,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
-import static org.firstinspires.ftc.teamcode.Control.Constants.ultraFrontS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
 
 
 public class Goal {
@@ -66,6 +66,7 @@ public class Goal {
                     setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
+                    setupMapping();
                     break;
                 case teleop:
                     setupDrivetrain();
@@ -88,6 +89,9 @@ public class Goal {
                     break;
                 case drivetrain_system:
                     setupDrivetrain();
+                    break;
+                case ultra:
+                    setupMapping();
                     break;
 
             }
@@ -182,7 +186,7 @@ public class Goal {
 
     public BNO055IMUImpl imu;
 
-    public ModernRoboticsI2cRangeSensor ultraFront;
+    public ModernRoboticsI2cRangeSensor leftSense;
 
 
     public double StrafetoTotalPower = 2.0/3.0;
@@ -254,7 +258,7 @@ public class Goal {
     }
 
     public void setupMapping() throws InterruptedException {
-        ultraFront = ultrasonicSensor(ultraFrontS);
+        leftSense = ultrasonicSensor(leftSenseS);
     }
 
     public void setupVuforia() throws InterruptedException{
@@ -832,7 +836,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal;
+        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra;
     }
 
 
