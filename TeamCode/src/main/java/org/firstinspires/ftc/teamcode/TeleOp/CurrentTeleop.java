@@ -123,7 +123,7 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.pinch.setPosition(1);
             }
              if(gamepad1.x){
-                rob.fly.setPower(0.7 );
+                rob.fly.setPower(0.7);
                 sleep(1000);
                 rob.whack.setPosition(0.6);
                 sleep(1000);

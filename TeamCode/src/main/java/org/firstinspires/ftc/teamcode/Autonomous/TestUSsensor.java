@@ -17,18 +17,28 @@ public class TestUSsensor extends AutonomousControl {
         telemetry.update();
 
         while (opModeIsActive()){
+            while(rob.rightbackSense.getDistance(DistanceUnit.CM) != rob.rightfrontSense.getDistance(DistanceUnit.CM)){
+                if(rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
+                    rob.driveTrainMovement(0.7, Goal.movements.left);
+                }
+                else if(rob.rightbackSense.getDistance(DistanceUnit.CM) < rob.rightfrontSense.getDistance(DistanceUnit.CM)){
+                    rob.driveTrainMovement(0.7, Goal.movements.right);
+                }
+            }
 
-//            telemetry.addData("Raw", rob.leftSense.getRawLightDetected());
+////            telemetry.addData("Raw", rob.leftSense.getRawLightDetected());
+////            telemetry.update();
+////            sleep(20000);
+//            //telemetry.addData("status", rob.leftSense.status());
+//            telemetry.addData("left cm", "%.2f cm", rob.leftSense.getDistance(DistanceUnit.CM));
+//          //  telemetry.addData("right cm", "%.2f cm", rob.frontSense.getDistance(DistanceUnit.CM));
+//            telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+//            telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
+//            // sleep(1000);
 //            telemetry.update();
-//            sleep(20000);
-            telemetry.addData("raw ultrasonic", rob.leftSense.rawUltrasonic());
-            telemetry.addData("raw optical", rob.leftSense.rawOptical());
-            telemetry.addData("cm optical", "%.2f cm", rob.leftSense.cmOptical());
-            telemetry.addData("cm", "%.2f cm", rob.leftSense.getDistance(DistanceUnit.CM));
-            // sleep(1000);
-            telemetry.update();
-            sleep(2000);
+//            sleep(30);
 
         }
     }
 }
+

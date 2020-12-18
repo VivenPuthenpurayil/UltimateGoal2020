@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.Control;
 
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -45,6 +47,9 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rightfrontSenseS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rightbackSenseS;
 
 
 public class Goal {
@@ -187,6 +192,9 @@ public class Goal {
     public BNO055IMUImpl imu;
 
     public ModernRoboticsI2cRangeSensor leftSense;
+    public ModernRoboticsI2cRangeSensor frontSense;
+    public ModernRoboticsI2cRangeSensor rightfrontSense;
+    public ModernRoboticsI2cRangeSensor rightbackSense;
 
 
     public double StrafetoTotalPower = 2.0/3.0;
@@ -227,7 +235,7 @@ public class Goal {
 
     public void setupStorage() throws InterruptedException {
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
-        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , 1);
+        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .84);
 
         encoder(EncoderMode.OFF, fly);
 
@@ -258,7 +266,12 @@ public class Goal {
     }
 
     public void setupMapping() throws InterruptedException {
+       // leftSense = realUS(leftSenseS);
+     //   leftSense = ultrasonicSensor(leftSenseS);
         leftSense = ultrasonicSensor(leftSenseS);
+        //frontSense = ultrasonicSensor(frontSenseS);
+        rightfrontSense = ultrasonicSensor(rightfrontSenseS);
+        rightbackSense = ultrasonicSensor(rightbackSenseS);
     }
 
     public void setupVuforia() throws InterruptedException{
@@ -421,10 +434,17 @@ public class Goal {
 
         return hardwareMap.get(ModernRoboticsI2cRangeSensor.class, name);
     }
+    public Rev2mDistanceSensor therealUS(String name) throws InterruptedException {
+        return hardwareMap.get(Rev2mDistanceSensor.class, name);
+    }
 
     public ModernRoboticsI2cColorSensor MRColor(String name) throws InterruptedException{
         return hardwareMap.get(ModernRoboticsI2cColorSensor.class, name);
 
+    }
+
+    public  ModernRoboticsAnalogOpticalDistanceSensor realUS(String name) throws InterruptedException {
+        return hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, name);
     }
 
     public void encoder(EncoderMode mode, DcMotor... motor) throws InterruptedException {

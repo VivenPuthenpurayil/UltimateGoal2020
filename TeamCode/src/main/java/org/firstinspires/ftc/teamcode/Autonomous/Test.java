@@ -17,8 +17,8 @@ public class Test extends AutonomousControl {
 
         if (opModeIsActive()) {
 
-            telemetry.addData("Raw", rob.leftSense.getRawLightDetected());
-            telemetry.update();
+            //telemetry.addData("Raw", rob.leftSense.getRawLightDetected());
+            //telemetry.update();
 
         }
 
