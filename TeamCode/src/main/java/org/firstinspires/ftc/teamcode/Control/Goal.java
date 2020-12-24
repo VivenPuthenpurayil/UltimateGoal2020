@@ -266,8 +266,7 @@ public class Goal {
     }
 
     public void setupMapping() throws InterruptedException {
-       // leftSense = realUS(leftSenseS);
-     //   leftSense = ultrasonicSensor(leftSenseS);
+
         leftSense = ultrasonicSensor(leftSenseS);
         //frontSense = ultrasonicSensor(frontSenseS);
         rightfrontSense = ultrasonicSensor(rightfrontSenseS);

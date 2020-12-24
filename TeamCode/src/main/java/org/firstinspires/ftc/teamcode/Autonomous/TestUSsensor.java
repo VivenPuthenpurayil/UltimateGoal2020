@@ -11,20 +11,28 @@ import org.firstinspires.ftc.teamcode.Control.Goal;
 public class TestUSsensor extends AutonomousControl {
     @Override
     public void runOpMode() throws InterruptedException {
-//hi
+
         setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
 
-        while (opModeIsActive()){
-            while(rob.rightbackSense.getDistance(DistanceUnit.CM) != rob.rightfrontSense.getDistance(DistanceUnit.CM)){
-                if(rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
-                    rob.driveTrainMovement(0.7, Goal.movements.left);
+        if (opModeIsActive()) {
+
+            while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 20) {
+                if (rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
+                    rob.driveTrainMovement(0.1, Goal.movements.ccw);
                 }
-                else if(rob.rightbackSense.getDistance(DistanceUnit.CM) < rob.rightfrontSense.getDistance(DistanceUnit.CM)){
-                    rob.driveTrainMovement(0.7, Goal.movements.right);
+                else {
+                    rob.driveTrainMovement(0.1, Goal.movements.cw);
                 }
+                telemetry.addLine("moving");
+                telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+                telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
+                telemetry.update();
             }
+            telemetry.addLine("not moving");
+            telemetry.update();
+        }
 
 ////            telemetry.addData("Raw", rob.leftSense.getRawLightDetected());
 ////            telemetry.update();
@@ -40,5 +48,5 @@ public class TestUSsensor extends AutonomousControl {
 
         }
     }
-}
+
 
