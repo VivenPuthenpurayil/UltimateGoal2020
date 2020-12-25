@@ -98,6 +98,9 @@ public class Goal {
                 case ultra:
                     setupMapping();
                     break;
+                case imu:
+                    setupIMU();
+                    break;
 
             }
 
@@ -855,7 +858,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra;
+        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra, imu;
     }
 
 
