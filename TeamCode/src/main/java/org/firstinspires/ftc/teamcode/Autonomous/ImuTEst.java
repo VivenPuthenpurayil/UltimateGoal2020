@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+/*package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -94,10 +94,12 @@ public class ImuTEst extends AutonomousControl {
 
                         }
                     });
+            telemetry.update();
 
-            sleep(10000);
+            //sleep(10000);
         }
     }
 }
 
 
+*/
