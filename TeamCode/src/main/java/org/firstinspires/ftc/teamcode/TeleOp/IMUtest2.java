@@ -31,7 +31,7 @@ import java.util.Locale;
  * */
 
 @TeleOp(name = "Sensor: BNO055 IMU", group = "Sensor")
-public class IMUtest2 extends Central
+public class IMUtest2 extends LinearOpMode
 {
     //----------------------------------------------------------------------------------------------
     // State
@@ -96,8 +96,8 @@ public class IMUtest2 extends Central
                 // Acquiring the angles is relatively expensive; we don't want
                 // to do that in each of the three items that need that info, as that's
                  // three times the necessary expense.
-                angles = rob.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                gravity = rob.imu.getGravity();
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
             }
         });
 
