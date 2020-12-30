@@ -85,8 +85,8 @@ public class DecemberMeet extends AutonomousControl {
             }
             rob.lifter.setPosition(0);
             sleep(250);
-            //move to white line
-            //rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
+            //move to Launch Line
+            rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
         }
     }
 }

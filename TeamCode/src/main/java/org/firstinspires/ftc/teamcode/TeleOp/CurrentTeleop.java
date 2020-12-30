@@ -16,7 +16,6 @@ public class CurrentTeleop extends TeleOpControl {
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
-        int collectionUp = 0;
 
         setup(runtime, Goal.setupType.teleop);
 
@@ -63,12 +62,13 @@ public class CurrentTeleop extends TeleOpControl {
                 }
 
                 if (gamepad1.right_trigger>.2){
-                    collectionUp ^= 1;
-                    rob.collection.setPower(-collectionUp);
+                    rob.collection.setPower(-1);
                 }
                 else if (gamepad1.left_trigger > .2){
                     rob.collection.setPower(1);
-                    collectionUp = 0;
+                }
+                else {
+                    rob.collection.setPower(0);
                 }
             }
 
