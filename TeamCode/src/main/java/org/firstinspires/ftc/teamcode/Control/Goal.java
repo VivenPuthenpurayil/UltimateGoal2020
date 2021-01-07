@@ -263,9 +263,9 @@ public class Goal {
     }
 
     public void setupFly() throws InterruptedException{
-        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT);
 
-        encoder(EncoderMode.OFF, fly);
+        encoder(EncoderMode.ON, fly);
 
 
     }

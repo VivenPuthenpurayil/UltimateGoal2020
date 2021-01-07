@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="RealDealBois+(Anikitty+Emily*Yash=Yamilykitty)", group = "basic")
+@Autonomous(name="RealAuto)", group = "basic")
 
 public class DecemberMeet extends AutonomousControl {
     @Override
@@ -73,7 +73,7 @@ public class DecemberMeet extends AutonomousControl {
             rob.driveTrainEncoderMovement(1,54,20,0,Goal.movements.left);
 
             //shoot powershots
-            rob.lifter.setPosition(0.8);
+         /*   rob.lifter.setPosition(0.8);
             sleep(500);
             for(int i = 0; i<=2; i++) {
                 rob.fly.setPower(0.7 );
@@ -82,11 +82,15 @@ public class DecemberMeet extends AutonomousControl {
                 sleep(900);
                 rob.whack.setPosition(0);
                 sleep(1000);
+
+
             }
             rob.lifter.setPosition(0);
             sleep(250);
             //move to Launch Line
             rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
+
+          */
         }
     }
 }
