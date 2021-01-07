@@ -33,7 +33,7 @@ public class OdometryTest extends AutonomousControl {
 
             rob.driveTrainEncoderMovement(.3,12, 10, 0, Goal.movements.forward);
 
-            telemetry.addData("Current Encoder Position Left: ", (rob.fly.getCurrentPosition() - startPosition)/);
+            telemetry.addData("Current Encoder Position Left: ", (rob.fly.getCurrentPosition() - startPosition));
             telemetry.addData("Current Encoder Position Right ", rob.collection.getCurrentPosition()-startPositionyeet);
 
 
