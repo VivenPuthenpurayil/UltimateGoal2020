@@ -16,20 +16,23 @@ public class TestUSsensor extends AutonomousControl {
         telemetry.addLine("Start!");
         telemetry.update();
 //hi
-        if (opModeIsActive()) {
+        while (true) {
 
-            while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 20) {
-                if (rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
-                    rob.driveTrainMovement(0.1, Goal.movements.ccw);
-                }
-                else {
-                    rob.driveTrainMovement(0.1, Goal.movements.cw);
-                }
-                telemetry.addLine("moving");
-                telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
-                telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
-                telemetry.update();
-            }
+           // while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 1) {
+              // if (rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
+                //    rob.driveTrainMovement(0.5, Goal.movements.ccw);
+                //}
+                //else {
+                  //  rob.driveTrainMovement(0.5, Goal.movements.cw);
+               // }
+                //telemetry.addLine("moving");
+                //telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+                //telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
+                //telemetry.update();
+            //}
+
+            telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+            telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
             telemetry.addLine("not moving");
             telemetry.update();
         }

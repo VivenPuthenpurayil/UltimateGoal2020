@@ -198,10 +198,10 @@ public class Goal {
 
     public BNO055IMUImpl imu;
 
-    public ModernRoboticsI2cRangeSensor leftSense;
+    public Rev2mDistanceSensor leftSense;
     public ModernRoboticsI2cRangeSensor frontSense;
-    public ModernRoboticsI2cRangeSensor rightfrontSense;
-    public ModernRoboticsI2cRangeSensor rightbackSense;
+    public Rev2mDistanceSensor rightfrontSense;
+    public Rev2mDistanceSensor rightbackSense;
 
 
     public double StrafetoTotalPower = 2.0/3.0;
@@ -281,10 +281,10 @@ public class Goal {
 
     public void setupMapping() throws InterruptedException {
 
-        leftSense = ultrasonicSensor(leftSenseS);
+        leftSense = therealUS(leftSenseS);
         //frontSense = ultrasonicSensor(frontSenseS);
-        rightfrontSense = ultrasonicSensor(rightfrontSenseS);
-        rightbackSense = ultrasonicSensor(rightbackSenseS);
+        rightfrontSense = therealUS(rightfrontSenseS);
+        rightbackSense = therealUS(rightbackSenseS);
     }
 
     public void setupVuforia() throws InterruptedException{
