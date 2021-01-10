@@ -15,7 +15,7 @@ public class TestUSsensor extends AutonomousControl {
         setup(runtime, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
-
+//hi
         if (opModeIsActive()) {
 
             while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 20) {
