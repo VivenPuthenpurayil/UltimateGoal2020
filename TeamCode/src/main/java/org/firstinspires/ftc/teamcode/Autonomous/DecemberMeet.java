@@ -19,101 +19,111 @@ public class DecemberMeet extends AutonomousControl {
 
         if (opModeIsActive()){
 
-            //pick up wobble goal
-            // rob.claw.setPower(-0.4);
-            //sleep(750);
-            //rob.claw.setPower(0);
-            // sleep(250);
+            // pick up wobble goal
+            rob.claw.setPower(-0.4);
+            sleep(750);
+            rob.claw.setPower(0);
+            sleep(250);
 
             //move to red square
-            rob.driveTrainEncoderMovement(.5,10,20,0,Goal.movements.right);
-            rob.driveTrainEncoderMovement(.5,63,20,0,Goal.movements.forward);
-/*\
+            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
+            rob.driveTrainEncoderMovement(1,63,20,0,Goal.movements.forward);
+
             //drop wobble goal
-            rob.pinch.setPosition(1);
+            rob.pinch.setPosition(0.8);
             sleep(1000);
+            rob.claw.setPower(0.3);
+            sleep(500);
+            rob.claw.setPower(0);
+            sleep(250);
 
-            //move to right before white line
-
-
-            rob.driveTrainEncoderMovement(1,43,20,0,Goal.movements.backward);
+            //move back to pick up second wobble goal
+            
+            rob.driveTrainEncoderMovement(1,46,20,0,Goal.movements.backward);
 
             rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.left);
 
-            rob.driveTrainEncoderMovement(0.5,23,20,0,Goal.movements.cw);
-
-
+            // turn to face second wobble goal
+            rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.cw);
 
             rob.pinch.setPosition(0.8);
             sleep(500);
-            rob.claw.setPower(0.4);
-            sleep(900);
-            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.forward);
 
-            rob.claw.setPower(-0.4);
+            // move to second wobble goal
+            rob.driveTrainEncoderMovement(.75,15,20,0,Goal.movements.forward);
+
+            // pick up second wobble goal
+            sleep(500);
+            rob.claw.setPower(-0.3);
             sleep(500);
             rob.claw.setPower(0);
             sleep(500);
             rob.pinch.setPosition(0);
-            sleep(750);
+            sleep(500);
             rob.claw.setPower(-0.4);
-            sleep(600);
+            sleep(400);
             rob.claw.setPower(0);
             sleep(250);
 
-            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.backward);
-            rob.driveTrainEncoderMovement(0.5,23,20,0,Goal.movements.ccw);
-
-            rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.right);
+            // move backwards to go back to red square
+//            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.backward);
+            rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.ccw);
+            rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,43,20,0,Goal.movements.forward);
 
             //drop wobble goal
-            rob.pinch.setPosition(1);
+            rob.pinch.setPosition(0.8);
             sleep(1000);
+            rob.claw.setPower(0.3);
+            sleep(500);
+            rob.claw.setPower(0);
+            sleep(250);
 
-            rob.driveTrainEncoderMovement(1,54,20,0,Goal.movements.left);
-*/
-            
-            //shoot powershots
-//          rob.lifter.setPosition(0.8);
-           // sleep(500);
-            rob.driveTrainEncoderMovement(.5,5,20,0,Goal.movements.left);
-            sleep(1000);
-            while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 0.5) {
-                if(rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
-                    rob .driveTrainMovement(0.1, Goal.movements.cw);
-                }
-                else{
-                    rob .driveTrainMovement(0.1, Goal.movements.ccw);
-                }
+            // start flywheel
+//            rob.fly.setPower(-0.635);
+            rob.fly.setPower(-0.71);
+            sleep(2000);
 
-            }
-            rob.driveTrainMovement(0, Goal.movements.cw);
-            sleep(1000);
+            // move backwards a bit so you dont hit the wobble goal
+            rob.driveTrainEncoderMovement(1,5,20,0,Goal.movements.backward);
 
-            rob.driveTrainEncoderMovement(.5,21,20,0,Goal.movements.left);
+            // move towards wall
+            rob.driveTrainEncoderMovement(1,20,0, 0, Goal.movements.right);
 
+            // move to the left, to align shots
+//            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.left);
+            rob.driveTrainEncoderMovement(1,30,20,0,Goal.movements.left);
+
+            // move to right behind white line
+            rob.driveTrainEncoderMovement(1,9,20,0,Goal.movements.forward);
+
+            // shoot your shots
             for(int i = 0; i<=2; i++) {
-                sleep(1000);
-                rob.driveTrainEncoderMovement(.5,10,20,0,Goal.movements.left);
-                rob.fly.setPower(-0.66);
-                sleep(3000);
-                rob.whack.setPosition(0.6);
-                sleep(1000);
+                rob.whack.setPosition(0.62);
+                sleep(500);
                 rob.whack.setPosition(0);
-                sleep(1000);
+                sleep(1500);
             }
 
-
-
-
-       //    rob.lifter.setPosition(0);
-         //   sleep(250);
-            //move to Launch Line
-           // rob.driveTrainEncoderMovement(1,4,20, 0,Goal.movements.forward);
-
-
+            // move to Launch Line
+            rob.driveTrainEncoderMovement(1,8,20, 0,Goal.movements.forward);
         }
     }
 }
 
+//shoot powershots
+//          rob.lifter.setPosition(0.8);
+// sleep(500);
+           /* rob.driveTrainEncoderMovement(.5,5,20,0,Goal.movements.left);
+            sleep(1000);
+            for (int i =0; i < 4; i++) {
+                while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > .75) {
+                    rob.driveTrainMovement(0.1, Goal.movements.ccw);
+                    telemetry.addData("difference", "%.2f cm", Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)));
+                    telemetry.update();
+
+                }
+            }
+            rob.driveTrainMovement(0, Goal.movements.forward);
+            sleep(1000);
+*/
