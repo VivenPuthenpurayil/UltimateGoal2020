@@ -18,7 +18,7 @@ public class TestIntake extends AutonomousControl {
         telemetry.update();
 
         if (opModeIsActive()){
-            rob.collection.setPower(-1);
+            rob.collection.setPower(1);
             //sleep(5000);
             sleep(30000);
         }

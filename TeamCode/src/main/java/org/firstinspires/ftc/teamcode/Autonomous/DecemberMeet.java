@@ -88,14 +88,14 @@ public class DecemberMeet extends AutonomousControl {
             rob.driveTrainEncoderMovement(1,5,20,0,Goal.movements.backward);
 
             // move towards wall
-            rob.driveTrainEncoderMovement(1,20,0, 0, Goal.movements.right);
+            rob.driveTrainEncoderMovement(1,10,20, 0, Goal.movements.right);
 
             // move to the left, to align shots
 //            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.left);
-            rob.driveTrainEncoderMovement(1,30,20,0,Goal.movements.left);
+            rob.driveTrainEncoderMovement(1,35,20,0,Goal.movements.left);
 
             // move to right behind white line
-            rob.driveTrainEncoderMovement(1,9,20,0,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.forward);
 
             // shoot your shots
             for(int i = 0; i<=2; i++) {

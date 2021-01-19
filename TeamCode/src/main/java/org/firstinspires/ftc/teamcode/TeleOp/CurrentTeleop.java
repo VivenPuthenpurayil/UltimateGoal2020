@@ -16,6 +16,7 @@ public class CurrentTeleop extends TeleOpControl {
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
+        boolean xToggle = false;
 
         setup(runtime, Goal.setupType.teleop);
 
@@ -24,8 +25,9 @@ public class CurrentTeleop extends TeleOpControl {
         while (opModeIsActive()){
             standardGamepadData();
 
-
-
+            if(gamepad2.x){
+                xToggle = !xToggle;
+            }
 
             if (gamepad1.y){
                 yToggle = !yToggle;
@@ -54,22 +56,13 @@ public class CurrentTeleop extends TeleOpControl {
                     rob.driveTrainMovement(diagonalSpeed, Goal.movements.br);
                 }
                 else if (g(8)) {
-                    rob.driveTrainMovement(0.3, Goal.movements.ccw);
+                    rob.driveTrainMovement(1, Goal.movements.ccw);
                 } else if (g(9)) {
-                    rob.driveTrainMovement(0.3, Goal.movements.cw);
+                    rob.driveTrainMovement(1, Goal.movements.cw);
                 } else {
                     rob.stopDrivetrain();
                 }
 
-                if (gamepad1.right_trigger>.2){
-                    rob.collection.setPower(-1);
-                }
-                else if (gamepad1.left_trigger > .2){
-                    rob.collection.setPower(1);
-                }
-                else {
-                    rob.collection.setPower(0);
-                }
             }
 
             else {
@@ -92,9 +85,9 @@ public class CurrentTeleop extends TeleOpControl {
                     rob.driveTrainMovement(0.3, Goal.movements.br);
                 }
                 else if (g(8)) {
-                    rob.driveTrainMovement(0.3, Goal.movements.ccw);
+                    rob.driveTrainMovement(.3, Goal.movements.ccw);
                 } else if (g(9)) {
-                    rob.driveTrainMovement(0.3, Goal.movements.cw);
+                    rob.driveTrainMovement(.3, Goal.movements.cw);
                 } else {
                     rob.stopDrivetrain();
                 }
@@ -105,31 +98,46 @@ public class CurrentTeleop extends TeleOpControl {
             //gamepad functions - lift, whack, and fly(x), wobblegoal up(y), wobblegoal down(a), wobblegoal pincher in(rb), wobblegoal pincher out(rb)
 
 
-            if(gamepad1.y){
-                rob.claw.setPower(-.75);
+            if(gamepad2.dpad_up){
+                rob.claw.setPower(-.5);
                 // make the up power 1 instead of 0.2
             }
-            else if(gamepad1.a){
+            else if(gamepad2.dpad_down){
                 rob.claw.setPower(0.2);
             }
             else{
                 rob.claw.setPower(0);
             }
-             if(gamepad1.right_bumper){
+             if(gamepad2.dpad_right){
                 //adjust position depending on how thingy works
                 rob.pinch.setPosition(0);
             }
-            else if(gamepad1.left_bumper){
+            else if(gamepad2.dpad_left){
                 rob.pinch.setPosition(1);
             }
-             if(gamepad1.x){
-                rob.fly.setPower(0.7);
-                sleep(1000);
-                rob.whack.setPosition(0.6);
-                sleep(1000);
+
+            if(xToggle){
+                rob.fly.setPower(-0.71);
+            }
+
+             if(gamepad2.y){
+                rob.whack.setPosition(0.62);
+                sleep(500);
                 rob.whack.setPosition(0);
-                sleep(2000);
+                sleep(1500);
                 rob.fly.setPower(0);
+            }
+
+
+
+            if (gamepad1.right_trigger>.2){
+                rob.collection.setPower(-1);
+            }
+            else if (gamepad1.left_trigger > .2){
+                rob.collection.setPower(1);
+            }
+            else {
+                rob.collection.setPower(0);
             }
 
 

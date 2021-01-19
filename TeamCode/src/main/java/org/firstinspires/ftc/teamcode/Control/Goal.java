@@ -250,7 +250,7 @@ public class Goal {
     public void setupStorage() throws InterruptedException {
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .84);
-
+//teleop .98
         encoder(EncoderMode.OFF, fly);
 
     }

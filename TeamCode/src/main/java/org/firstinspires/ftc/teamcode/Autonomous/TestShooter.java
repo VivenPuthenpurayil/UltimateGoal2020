@@ -18,7 +18,8 @@ public class TestShooter extends AutonomousControl {
         telemetry.update();
 
         if (opModeIsActive()){
-            rob.fly.setPower(-0.71);
+            rob.lifter.setPosition(.84);
+            rob.fly.setPower(-1);
             sleep(5000);
             for(int i = 0; i<=3; i++) {
                 rob.whack.setPosition(0.62);
