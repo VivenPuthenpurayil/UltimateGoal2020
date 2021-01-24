@@ -35,7 +35,7 @@ public class CurrentTeleop extends TeleOpControl {
 
             if (!yToggle) {
 
-
+//BR - Third hole
 
                 if (g(0)) {
                     rob.driveTrainMovement(fb, Goal.movements.forward);
@@ -47,13 +47,13 @@ public class CurrentTeleop extends TeleOpControl {
                     rob.driveTrainMovement(rl, Goal.movements.left);
                 }
                 else if (g(4)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tr);
-                }else if (g(5)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tl);
-                }else if (g(6)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.bl);
-                }else if (g(7)) {
                     rob.driveTrainMovement(diagonalSpeed, Goal.movements.br);
+                }else if (g(5)) {
+                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.bl);
+                }else if (g(6)) {
+                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tl);
+                }else if (g(7)) {
+                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tr);
                 }
                 else if (g(8)) {
                     rob.driveTrainMovement(1, Goal.movements.ccw);
@@ -116,19 +116,115 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.pinch.setPosition(1);
             }
 
-            if(xToggle){
-                rob.fly.setPower(-0.71);
-            }
-
-             if(gamepad2.y){
-                rob.whack.setPosition(0.62);
-                sleep(500);
+        if(gamepad2.x) {
+            rob.motorFL.setPower(0);
+            rob.motorBL.setPower(0);
+            rob.motorFR.setPower(0);
+            rob.motorBR.setPower(0);
+            sleep(250);
+            rob.lifter.setPosition(.84);
+            sleep(500);
+            rob.fly.setPower(-0.66);
+            sleep(1000);
+            for (int i = 0; i <= 2; i++) {
+                if(gamepad2.b){
+                    rob.motorFL.setPower(0);
+                    sleep(200);
+                    rob.motorBL.setPower(0);
+                    sleep(200);
+                    rob.motorFR.setPower(0);
+                    sleep(200);
+                    rob.motorBR.setPower(0);
+                    sleep(200);
+                    rob.fly.setPower(0);
+                    sleep(200);
+                    rob.collection.setPower(0);
+                    sleep(200);
+                    rob.claw.setPower(0);
+                    sleep(200);
+                    break;
+                }
+                rob.fly.setPower(-0.8);
+                sleep(200);
+                if(gamepad2.b){
+                    rob.motorFL.setPower(0);
+                    sleep(200);
+                    rob.motorBL.setPower(0);
+                    sleep(200);
+                    rob.motorFR.setPower(0);
+                    sleep(200);
+                    rob.motorBR.setPower(0);
+                    sleep(200);
+                    rob.fly.setPower(0);
+                    sleep(200);
+                    rob.collection.setPower(0);
+                    sleep(200);
+                    rob.claw.setPower(0);
+                    sleep(200);
+                    break;
+                }
+                rob.whack.setPosition(0.6);
+                sleep(1000);
+                if(gamepad2.b){
+                    rob.motorFL.setPower(0);
+                    sleep(200);
+                    rob.motorBL.setPower(0);
+                    sleep(200);
+                    rob.motorFR.setPower(0);
+                    sleep(200);
+                    rob.motorBR.setPower(0);
+                    sleep(200);
+                    rob.fly.setPower(0);
+                    sleep(200);
+                    rob.collection.setPower(0);
+                    sleep(200);
+                    rob.claw.setPower(0);
+                    sleep(200);
+                    break;
+                }
                 rob.whack.setPosition(0);
-                sleep(1500);
-                rob.fly.setPower(0);
+                sleep(1000);
+
+                if(gamepad2.b){
+                    rob.motorFL.setPower(0);
+                    sleep(200);
+                    rob.motorBL.setPower(0);
+                    sleep(200);
+                    rob.motorFR.setPower(0);
+                    sleep(200);
+                    rob.motorBR.setPower(0);
+                    sleep(200);
+                    rob.fly.setPower(0);
+                    sleep(200);
+                    rob.collection.setPower(0);
+                    sleep(200);
+                    rob.claw.setPower(0);
+                    sleep(200);
+                    break;
+                }
             }
+            rob.fly.setPower(0);
+            rob.lifter.setPosition(.98);
+            sleep(500);
+        }
 
-
+        if(gamepad2.b){
+            rob.motorFL.setPower(0);
+            sleep(200);
+            rob.motorBL.setPower(0);
+            sleep(200);
+            rob.motorFR.setPower(0);
+            sleep(200);
+            rob.motorBR.setPower(0);
+            sleep(200);
+            rob.fly.setPower(0);
+            sleep(200);
+            rob.collection.setPower(0);
+            sleep(200);
+            rob.claw.setPower(0);
+            sleep(200);
+            rob.whack.setPosition(0);
+        }
 
             if (gamepad1.right_trigger>.2){
                 rob.collection.setPower(-1);
