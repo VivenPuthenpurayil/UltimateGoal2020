@@ -39,7 +39,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_COREHEXMOTOR_INCH;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_GOBUILDA435RPM_INCH;
-import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
 import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
 import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
@@ -51,15 +50,15 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
-import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.rightfrontSenseS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.rightbackSenseS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.rightfrontSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.rightbackSenseS;
+//import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
 
 
 public class Goal {
-
 
     public Goal(HardwareMap hardwareMap, ElapsedTime runtime, Central central, setupType... setup) throws InterruptedException {
         this.hardwareMap = hardwareMap;
@@ -74,10 +73,10 @@ public class Goal {
                 case autonomous:
                     setupDrivetrain();
                     setupStorage();
-                    setupCollection();
+                    //setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
-                    setupMapping();
+                    //setupMapping();
                     break;
                 case teleop:
                     setupDrivetrain();
@@ -103,7 +102,7 @@ public class Goal {
                     setupDrivetrain();
                     break;
                 case ultra:
-                    setupMapping();
+                    //setupMapping();
                     break;
                 case imu:
                     setupIMU();
@@ -201,11 +200,11 @@ public class Goal {
 
     public BNO055IMUImpl imu;
 
-    public ModernRoboticsI2cRangeSensor leftSense;
-    public ModernRoboticsI2cRangeSensor frontSense;
-    public Rev2mDistanceSensor rightfrontSense;
-    public Rev2mDistanceSensor rightbackSense;
-    public ModernRoboticsI2cRangeSensor backSense;
+//    public ModernRoboticsI2cRangeSensor leftSense;
+//    public ModernRoboticsI2cRangeSensor frontSense;
+//    public Rev2mDistanceSensor rightfrontSense;
+//    public Rev2mDistanceSensor rightbackSense;
+//    public ModernRoboticsI2cRangeSensor backSense;
 
 
     public double StrafetoTotalPower = 2.0/3.0;
@@ -254,7 +253,7 @@ public class Goal {
     public void setupStorage() throws InterruptedException {
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .97);
-//teleop .98
+        // teleop .98
         encoder(EncoderMode.OFF, fly);
     }
 
@@ -282,14 +281,14 @@ public class Goal {
 
     }
 
-    public void setupMapping() throws InterruptedException {
-
-        leftSense = ultrasonicSensor(leftSenseS);
-        //frontSense = ultrasonicSensor(frontSenseS);
-        rightfrontSense = therealUS(rightfrontSenseS);
-        rightbackSense = therealUS(rightbackSenseS);
-        backSense = ultrasonicSensor(backSenseS);
-    }
+//    public void setupMapping() throws InterruptedException {
+//
+//        leftSense = ultrasonicSensor(leftSenseS);
+//        //frontSense = ultrasonicSensor(frontSenseS);
+//        rightfrontSense = therealUS(rightfrontSenseS);
+//        rightbackSense = therealUS(rightbackSenseS);
+//        backSense = ultrasonicSensor(backSenseS);
+//    }
 
     public void setupVuforia() throws InterruptedException{
         float phoneXRotate    = 0;

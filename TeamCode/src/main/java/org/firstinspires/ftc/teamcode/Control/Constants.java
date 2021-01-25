@@ -69,12 +69,12 @@ public class Constants {
 
     public static final String pincher = "pinch";
     public static final String whacker = "whacker";
-    //public static final String ultraFrontS = "ultraFront";
-    public static final String leftSenseS = "leftSense";
-   // public static final String frontSenseS = "frontSense";
-    public static final String rightfrontSenseS = "rightfrontSense";
-    public static final String rightbackSenseS = "rightbackSense";
-    public static final String backSenseS = "backSense";
+//    //public static final String ultraFrontS = "ultraFront";
+//    public static final String leftSenseS = "leftSense";
+//   // public static final String frontSenseS = "frontSense";
+//    public static final String rightfrontSenseS = "rightfrontSense";
+//    public static final String rightbackSenseS = "rightbackSense";
+//    public static final String backSenseS = "backSense";
 
     public static final String imuS = "imu";
 

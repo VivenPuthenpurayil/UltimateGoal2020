@@ -30,13 +30,13 @@ public class TestUSsensor extends AutonomousControl {
             //telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
             //telemetry.update();
             //}
-            while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 1) {
-             //   rob.driveTrainMovement(0.1, Goal.movements.ccw);
-                telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
-                telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
-                telemetry.addData("difference", "%.2f cm", Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)));
-                telemetry.update();
-            }
+//            while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 1) {
+//             //   rob.driveTrainMovement(0.1, Goal.movements.ccw);
+//                telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+//                telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
+//                telemetry.addData("difference", "%.2f cm", Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)));
+//                telemetry.update();
+//            }
           //  rob.driveTrainMovement(0, Goal.movements.cw);
             //sleep(3000);
 

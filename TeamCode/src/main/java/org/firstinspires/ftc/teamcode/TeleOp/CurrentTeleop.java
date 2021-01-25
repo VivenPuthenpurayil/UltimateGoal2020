@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.Control.Central;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
@@ -12,11 +13,14 @@ import com.qualcomm.robotcore.util.Range;
 
 public class CurrentTeleop extends TeleOpControl {
     public static final double rotationSpeed = 0.4;
+    public static boolean flywheelon = false;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
         boolean xToggle = false;
+        boolean move_to_pos = false;
 
         setup(runtime, Goal.setupType.teleop);
 
@@ -35,7 +39,7 @@ public class CurrentTeleop extends TeleOpControl {
 
             if (!yToggle) {
 
-//BR - Third hole
+                // BR - Third hole
 
                 if (g(0)) {
                     rob.driveTrainMovement(fb, Goal.movements.forward);
@@ -66,6 +70,7 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             else {
+
                 if (g(0)) {
                     rob.driveTrainMovement(0.5, Goal.movements.left);
                 } else if (g(2)) {
@@ -95,7 +100,8 @@ public class CurrentTeleop extends TeleOpControl {
 
 
 
-            //gamepad functions - lift, whack, and fly(x), wobblegoal up(y), wobblegoal down(a), wobblegoal pincher in(rb), wobblegoal pincher out(rb)
+            // gamepad functions - lift, whack, and fly(x), wobblegoal up(y), wobblegoal down(a),
+            // wobblegoal pincher in(rb), wobblegoal pincher out(rb)
 
 
             if(gamepad2.dpad_up){
@@ -108,7 +114,8 @@ public class CurrentTeleop extends TeleOpControl {
             else{
                 rob.claw.setPower(0);
             }
-             if(gamepad2.dpad_right){
+
+            if(gamepad2.dpad_right){
                 //adjust position depending on how thingy works
                 rob.pinch.setPosition(0);
             }
@@ -116,115 +123,66 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.pinch.setPosition(1);
             }
 
-        if(gamepad2.x) {
-            rob.motorFL.setPower(0);
-            rob.motorBL.setPower(0);
-            rob.motorFR.setPower(0);
-            rob.motorBR.setPower(0);
-            sleep(250);
-            rob.lifter.setPosition(.84);
-            sleep(500);
-            rob.fly.setPower(-0.66);
-            sleep(1000);
-            for (int i = 0; i <= 2; i++) {
-                if(gamepad2.b){
-                    rob.motorFL.setPower(0);
-                    sleep(200);
-                    rob.motorBL.setPower(0);
-                    sleep(200);
-                    rob.motorFR.setPower(0);
-                    sleep(200);
-                    rob.motorBR.setPower(0);
-                    sleep(200);
-                    rob.fly.setPower(0);
-                    sleep(200);
-                    rob.collection.setPower(0);
-                    sleep(200);
-                    rob.claw.setPower(0);
-                    sleep(200);
-                    break;
-                }
-                rob.fly.setPower(-0.8);
-                sleep(200);
-                if(gamepad2.b){
-                    rob.motorFL.setPower(0);
-                    sleep(200);
-                    rob.motorBL.setPower(0);
-                    sleep(200);
-                    rob.motorFR.setPower(0);
-                    sleep(200);
-                    rob.motorBR.setPower(0);
-                    sleep(200);
-                    rob.fly.setPower(0);
-                    sleep(200);
-                    rob.collection.setPower(0);
-                    sleep(200);
-                    rob.claw.setPower(0);
-                    sleep(200);
-                    break;
-                }
-                rob.whack.setPosition(0.6);
-                sleep(1000);
-                if(gamepad2.b){
-                    rob.motorFL.setPower(0);
-                    sleep(200);
-                    rob.motorBL.setPower(0);
-                    sleep(200);
-                    rob.motorFR.setPower(0);
-                    sleep(200);
-                    rob.motorBR.setPower(0);
-                    sleep(200);
-                    rob.fly.setPower(0);
-                    sleep(200);
-                    rob.collection.setPower(0);
-                    sleep(200);
-                    rob.claw.setPower(0);
-                    sleep(200);
-                    break;
-                }
-                rob.whack.setPosition(0);
-                sleep(1000);
-
-                if(gamepad2.b){
-                    rob.motorFL.setPower(0);
-                    sleep(200);
-                    rob.motorBL.setPower(0);
-                    sleep(200);
-                    rob.motorFR.setPower(0);
-                    sleep(200);
-                    rob.motorBR.setPower(0);
-                    sleep(200);
-                    rob.fly.setPower(0);
-                    sleep(200);
-                    rob.collection.setPower(0);
-                    sleep(200);
-                    rob.claw.setPower(0);
-                    sleep(200);
-                    break;
-                }
+            if (gamepad2.y) {
+                flywheelon = true;
+                move_to_pos = true;
             }
-            rob.fly.setPower(0);
-            rob.lifter.setPosition(.98);
-            sleep(500);
-        }
 
-        if(gamepad2.b){
-            rob.motorFL.setPower(0);
-            sleep(200);
-            rob.motorBL.setPower(0);
-            sleep(200);
-            rob.motorFR.setPower(0);
-            sleep(200);
-            rob.motorBR.setPower(0);
-            sleep(200);
-            rob.fly.setPower(0);
-            sleep(200);
-            rob.collection.setPower(0);
-            sleep(200);
-            rob.claw.setPower(0);
-            sleep(200);
-            rob.whack.setPosition(0);
-        }
+            if (gamepad2.x) {
+                flywheelon = true;
+            }
+
+            if (flywheelon) {
+                rob.fly.setPower(-0.61);
+            }
+
+            if(gamepad2.a) {
+                rob.motorFL.setPower(0);
+                rob.motorBL.setPower(0);
+                rob.motorFR.setPower(0);
+                rob.motorBR.setPower(0);
+                sleep(250);
+                rob.lifter.setPosition(.84);
+                sleep(500);
+                for (int i = 0; i <= 2; i++) {
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.fly.setPower(-0.8);
+                    sleep(200);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.whack.setPosition(0.6);
+                    sleep(1000);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.whack.setPosition(0);
+                    sleep(1000);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+                }
+//                rob.fly.setPower(0);
+                rob.lifter.setPosition(.98);
+                sleep(200);
+            }
+
+            if(gamepad2.b){
+                emergencystop();
+            }
 
             if (gamepad1.right_trigger>.2){
                 rob.collection.setPower(-1);
@@ -236,22 +194,96 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.collection.setPower(0);
             }
 
+            if (move_to_pos) {
+                rob.driveTrainEncoderMovement(1,63,20,0,Goal.movements.forward);
+                rob.driveTrainEncoderMovement(1,25.5,20,0,Goal.movements.left);
+                move_to_pos = false;
+            }
 
-/*
-            if(gamepad2.dpad_up){
-                rob.rightLinear.setPower(1);
-            }
-            else if (gamepad2.dpad_down){
-                rob.rightLinear.setPower(-0.5);
-            }
-            else {
-                rob.rightLinear.setPower(0);
-            }
- */
+    /*
+        if(gamepad2.dpad_up){
+            rob.rightLinear.setPower(1);
+        }
+        else if (gamepad2.dpad_down){
+            rob.rightLinear.setPower(-0.5);
+        }
+        else {
+            rob.rightLinear.setPower(0);
+        }
+
+  */
+
 //check point
 
         }
     }
+
+    public void emergencystop() throws InterruptedException {
+        flywheelon = false;
+        rob.motorFL.setPower(0);
+        sleep(200);
+        rob.motorBL.setPower(0);
+        sleep(200);
+        rob.motorFR.setPower(0);
+        sleep(200);
+        rob.motorBR.setPower(0);
+        sleep(200);
+        rob.fly.setPower(0);
+        sleep(200);
+        rob.collection.setPower(0);
+        sleep(200);
+        rob.claw.setPower(0);
+        sleep(200);
+        rob.whack.setPosition(0);
+    }
 }
+
+/*
+        if(gamepad2.x) {
+                rob.motorFL.setPower(0);
+                rob.motorBL.setPower(0);
+                rob.motorFR.setPower(0);
+                rob.motorBR.setPower(0);
+                sleep(250);
+                rob.lifter.setPosition(.84);
+                sleep(500);
+                rob.fly.setPower(-0.66);
+                sleep(1000);
+                for (int i = 0; i <= 2; i++) {
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.fly.setPower(-0.8);
+                    sleep(200);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.whack.setPosition(0.6);
+                    sleep(1000);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+
+                    rob.whack.setPosition(0);
+                    sleep(1000);
+
+                    if(gamepad2.b){
+                        emergencystop();
+                        break;
+                    }
+                }
+                rob.fly.setPower(0);
+                rob.lifter.setPosition(.98);
+                sleep(500);
+            }
+ */
 
 
