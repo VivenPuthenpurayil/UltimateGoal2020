@@ -82,7 +82,7 @@ public class DecemberMeet extends AutonomousControl {
 
             // start flywheel
 //            rob.fly.setPower(-0.635);
-            rob.fly.setPower(-0.71);
+            rob.fly.setPower(-0.68);
             sleep(2000);
 
             // move backwards a bit so you dont hit the wobble goal
