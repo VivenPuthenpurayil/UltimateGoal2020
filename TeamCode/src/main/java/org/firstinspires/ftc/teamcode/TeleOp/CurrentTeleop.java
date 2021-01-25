@@ -95,8 +95,6 @@ public class CurrentTeleop extends TeleOpControl {
                 }
             }
 
-
-
             // gamepad functions - lift, whack, and fly(x), wobblegoal up(y), wobblegoal down(a),
             // wobblegoal pincher in(rb), wobblegoal pincher out(rb)
 
@@ -130,7 +128,7 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             if (flywheelon) {
-                rob.fly.setPower(-0.71);
+                rob.fly.setPower(-0.73);
             }
 
             if(gamepad2.a) {
@@ -148,7 +146,7 @@ public class CurrentTeleop extends TeleOpControl {
                         break;
                     }
 
-                    rob.fly.setPower(-0.71);
+                    rob.fly.setPower(-0.73);
                     sleep(200);
 
                     if(gamepad2.b){
@@ -192,8 +190,8 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             if (move_to_pos) {
+                rob.driveTrainEncoderMovement(1,27,20,0,Goal.movements.left);
                 rob.driveTrainEncoderMovement(1,63,20,0,Goal.movements.forward);
-                rob.driveTrainEncoderMovement(1,25.5,20,0,Goal.movements.left);
                 move_to_pos = false;
             }
 

@@ -20,19 +20,19 @@ public class DecemberMeet extends AutonomousControl {
         if (opModeIsActive()){
 
             // pick up wobble goal
-            rob.claw.setPower(-0.4);
-            sleep(750);
-            rob.claw.setPower(0);
-            sleep(250);
+//            rob.claw.setPower(-0.4);
+//            sleep(750);
+//            rob.claw.setPower(0);
+//            sleep(250);
 
             //move to red square
-        //    rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
+            //    rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,66,20,0,Goal.movements.forward);
-                                                            // previous 63
+            // previous 63
 
             //drop wobble goal
             rob.pinch.setPosition(0.8);
-            sleep(1000);
+            sleep(500);
             rob.claw.setPower(0.3);
             sleep(500);
             rob.claw.setPower(0);
@@ -58,15 +58,15 @@ public class DecemberMeet extends AutonomousControl {
             rob.driveTrainEncoderMovement(.75,16,20,0,Goal.movements.forward);
 
             // pick up second wobble goal
-            sleep(500);
+            sleep(250);
             rob.claw.setPower(-0.3);
-            sleep(500);
+            sleep(300);
             rob.claw.setPower(0);
             sleep(500);
             rob.pinch.setPosition(0);
-            sleep(500);
-            rob.claw.setPower(-0.4);
             sleep(400);
+            rob.claw.setPower(-0.4);
+            sleep(350);
             rob.claw.setPower(0);
             sleep(250);
 
@@ -74,54 +74,55 @@ public class DecemberMeet extends AutonomousControl {
 //            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.backward);
             rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.ccw);
             rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.right);
-            rob.driveTrainEncoderMovement(1,43,20,0,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(1,42,20,0,Goal.movements.forward);
 
             //drop wobble goal
             rob.pinch.setPosition(0.8);
-            sleep(1000);
+            sleep(250);
             rob.claw.setPower(0.3);
             sleep(500);
             rob.claw.setPower(0);
             sleep(250);
 
             // start flywheel
-//            rob.fly.setPower(-0.635);
-            rob.fly.setPower(-0.78);
+//          rob.fly.setPower(-0.635);
+            rob.fly.setPower(-0.73);
             sleep(2000);
 
             // move backwards a bit so you dont hit the wobble goal
             rob.driveTrainEncoderMovement(1,7,20,0,Goal.movements.backward);
 
             // move towards wall
-           // rob.driveTrainEncoderMovement(1,9,20, 0, Goal.movements.right);
+            // rob.driveTrainEncoderMovement(1,9,20, 0, Goal.movements.right);
 
             // move to the left, to align shots
-//            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.left);
+//          rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.left);
             rob.driveTrainEncoderMovement(1,22 ,20,0,Goal.movements.left);
 
             // move to right behind white line
             rob.driveTrainEncoderMovement(1,9,20,0,Goal.movements.forward);
 
 
-            rob.fly.setPower(-0.78);
-            sleep(2000);
-//2000
+//            rob.fly.setPower(-0.72);
+//            sleep(2000);
+////2000
+
             // shoot your shots
 
             sleep(500);
             for(int i = 0; i<=2; i++) {
-                rob.fly.setPower(-0.78);
+                rob.fly.setPower(-0.73);
                 sleep(200);
                 //200
-                rob.whack.setPosition(0.5);
-                sleep(750);
+                rob.whack.setPosition(0.62);
+                sleep(1000);
                 //1000 each
                 rob.whack.setPosition(0);
-                sleep(750);
+                sleep(1000);
             }
 
             // move to Launch Line
-                rob.driveTrainEncoderMovement(1,8, 100, 100,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(1,8, 100, 100,Goal.movements.forward);
         }
     }
 }
