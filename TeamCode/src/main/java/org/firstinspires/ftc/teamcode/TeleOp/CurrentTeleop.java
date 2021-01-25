@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Control.Central;
+
 import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-
-@TeleOp(name="DriveModeFinal", group = "Main")
+@TeleOp(name="vivaniskindasped", group = "Main")
 
 public class CurrentTeleop extends TeleOpControl {
     public static final double rotationSpeed = 0.4;
@@ -133,7 +130,7 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             if (flywheelon) {
-                rob.fly.setPower(-0.61);
+                rob.fly.setPower(-0.71);
             }
 
             if(gamepad2.a) {
@@ -147,23 +144,23 @@ public class CurrentTeleop extends TeleOpControl {
                 for (int i = 0; i <= 2; i++) {
 
                     if(gamepad2.b){
-                        emergencystop();
+                        emergencystopDriver2();
                         break;
                     }
 
-                    rob.fly.setPower(-0.8);
+                    rob.fly.setPower(-0.71);
                     sleep(200);
 
                     if(gamepad2.b){
-                        emergencystop();
+                        emergencystopDriver2();
                         break;
                     }
 
-                    rob.whack.setPosition(0.6);
+                    rob.whack.setPosition(0.5);
                     sleep(1000);
 
                     if(gamepad2.b){
-                        emergencystop();
+                        emergencystopDriver2();
                         break;
                     }
 
@@ -171,7 +168,7 @@ public class CurrentTeleop extends TeleOpControl {
                     sleep(1000);
 
                     if(gamepad2.b){
-                        emergencystop();
+                        emergencystopDriver2();
                         break;
                     }
                 }
@@ -181,7 +178,7 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             if(gamepad2.b){
-                emergencystop();
+                emergencystopDriver2();
             }
 
             if (gamepad1.right_trigger>.2){
@@ -218,8 +215,18 @@ public class CurrentTeleop extends TeleOpControl {
         }
     }
 
-    public void emergencystop() throws InterruptedException {
+    public void emergencystopDriver2() throws InterruptedException {
         flywheelon = false;
+        rob.fly.setPower(0);
+        sleep(200);
+        rob.claw.setPower(0);
+        sleep(200);
+        rob.lifter.setPosition(0.98);
+        sleep(200);
+        rob.whack.setPosition(0);
+    }
+
+    public void emergencystopDriver1() throws InterruptedException {
         rob.motorFL.setPower(0);
         sleep(200);
         rob.motorBL.setPower(0);
@@ -228,14 +235,10 @@ public class CurrentTeleop extends TeleOpControl {
         sleep(200);
         rob.motorBR.setPower(0);
         sleep(200);
-        rob.fly.setPower(0);
-        sleep(200);
         rob.collection.setPower(0);
         sleep(200);
-        rob.claw.setPower(0);
-        sleep(200);
-        rob.whack.setPosition(0);
     }
+
 }
 
 /*

@@ -26,7 +26,7 @@ public class DecemberMeet extends AutonomousControl {
             sleep(250);
 
             //move to red square
-            rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
+        //    rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,66,20,0,Goal.movements.forward);
                                                             // previous 63
 
@@ -38,11 +38,15 @@ public class DecemberMeet extends AutonomousControl {
             rob.claw.setPower(0);
             sleep(250);
 
+
             //move back to pick up second wobble goal
 
             rob.driveTrainEncoderMovement(1,46,20,0,Goal.movements.backward);
 
-            rob.driveTrainEncoderMovement(1,11,20,0,Goal.movements.left);
+            rob.lifter.setPosition(.84);
+            sleep(200);
+
+            rob.driveTrainEncoderMovement(1,6,20,0,Goal.movements.left);
 
             // turn to face second wobble goal
             rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.cw);
@@ -51,7 +55,7 @@ public class DecemberMeet extends AutonomousControl {
             sleep(500);
 
             // move to second wobble goal
-            rob.driveTrainEncoderMovement(.75,15,20,0,Goal.movements.forward);
+            rob.driveTrainEncoderMovement(.75,16,20,0,Goal.movements.forward);
 
             // pick up second wobble goal
             sleep(500);
@@ -82,36 +86,42 @@ public class DecemberMeet extends AutonomousControl {
 
             // start flywheel
 //            rob.fly.setPower(-0.635);
-            rob.fly.setPower(-0.68);
+            rob.fly.setPower(-0.78);
             sleep(2000);
 
             // move backwards a bit so you dont hit the wobble goal
-            rob.driveTrainEncoderMovement(1,5,20,0,Goal.movements.backward);
+            rob.driveTrainEncoderMovement(1,7,20,0,Goal.movements.backward);
 
             // move towards wall
-            rob.driveTrainEncoderMovement(1,9,20, 0, Goal.movements.right);
+           // rob.driveTrainEncoderMovement(1,9,20, 0, Goal.movements.right);
 
             // move to the left, to align shots
 //            rob.driveTrainEncoderMovement(1,44,20,0,Goal.movements.left);
-            rob.driveTrainEncoderMovement(1,33,20,0,Goal.movements.left);
+            rob.driveTrainEncoderMovement(1,22 ,20,0,Goal.movements.left);
 
             // move to right behind white line
             rob.driveTrainEncoderMovement(1,9,20,0,Goal.movements.forward);
 
+
+            rob.fly.setPower(-0.78);
+            sleep(2000);
+//2000
             // shoot your shots
-            rob.lifter.setPosition(.84);
+
             sleep(500);
             for(int i = 0; i<=2; i++) {
-                rob.fly.setPower(-0.8);
+                rob.fly.setPower(-0.78);
                 sleep(200);
-                rob.whack.setPosition(0.6);
-                sleep(1000);
+                //200
+                rob.whack.setPosition(0.5);
+                sleep(750);
+                //1000 each
                 rob.whack.setPosition(0);
-                sleep(1000);
+                sleep(750);
             }
 
             // move to Launch Line
-            rob.driveTrainEncoderMovement(1,8,20, 0,Goal.movements.forward);
+                rob.driveTrainEncoderMovement(1,8, 100, 100,Goal.movements.forward);
         }
     }
 }
