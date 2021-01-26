@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -43,11 +44,15 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
 import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
 import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.leftBacks;
+import static org.firstinspires.ftc.teamcode.Control.Constants.leftFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rightBacks;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
@@ -102,7 +107,7 @@ public class Goal {
                     setupDrivetrain();
                     break;
                 case ultra:
-                    //setupMapping();
+                    setupUltra();
                     break;
                 case imu:
                     setupIMU();
@@ -197,6 +202,7 @@ public class Goal {
     public Servo whack;
     public Servo pinch;
     public Servo lifter;
+    public ModernRoboticsI2cRangeSensor leftFront, leftBack, rightFront, rightBack;
 
     public BNO055IMUImpl imu;
 
@@ -278,7 +284,13 @@ public class Goal {
 
         encoder(EncoderMode.OFF, claw);
 
+    }
 
+    public void setupUltra() throws InterruptedException {
+        leftBack = ultrasonicSensor(leftBacks);
+        leftFront = ultrasonicSensor(leftFronts);
+        rightBack = ultrasonicSensor(rightBacks);
+        rightFront = ultrasonicSensor(rightFronts);
     }
 
 //    public void setupMapping() throws InterruptedException {

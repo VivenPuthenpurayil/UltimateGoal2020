@@ -18,6 +18,8 @@ public class TestUSsensor extends AutonomousControl {
 //hi
         while (true) {
 
+
+
             // while (Math.abs(rob.rightbackSense.getDistance(DistanceUnit.CM) - rob.rightfrontSense.getDistance(DistanceUnit.CM)) > 1) {
             // if (rob.rightbackSense.getDistance(DistanceUnit.CM) > rob.rightfrontSense.getDistance(DistanceUnit.CM)){
             //    rob.driveTrainMovement(0.5, Goal.movements.ccw);
