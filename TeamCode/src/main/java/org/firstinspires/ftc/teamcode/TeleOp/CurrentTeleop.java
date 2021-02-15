@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
@@ -13,17 +14,25 @@ public class CurrentTeleop extends TeleOpControl {
     public static boolean flywheelon = false;
 
 
+
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
         boolean xToggle = false;
         boolean move_to_pos = false;
+        double angle = 0;
+
 
         setup(runtime, Goal.setupType.teleop);
 
         waitForStart();
 
         while (opModeIsActive()){
+            double distanceBack = rob.rightBack.getDistance(DistanceUnit.CM);
+            double distanceFront = rob.rightFront.getDistance(DistanceUnit.CM);
+            telemetry.addData("back", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
+            telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
+            telemetry.update();
             standardGamepadData();
 
             if(gamepad2.x){
@@ -190,8 +199,14 @@ public class CurrentTeleop extends TeleOpControl {
             }
 
             if (move_to_pos) {
-                rob.driveTrainEncoderMovement(1,27,20,0,Goal.movements.left);
-                rob.driveTrainEncoderMovement(1,63,20,0,Goal.movements.forward);
+                if (distanceBack > 1000 || distanceFront > 1000) {
+                    continue;
+                }
+                angle = (Math.atan((distanceFront - distanceBack) / 6.6142) * 180) / (3.1415);
+                rob.driveTrainEncoderMovement(.5, 12.75 / 90 * angle, 10, 10, Goal.movements.ccw);
+                while (rob.Back.getDistance((DistanceUnit.CM))< 156){
+                    rob.driveTrainMovement(.5, Goal.movements.forward);
+                }
                 move_to_pos = false;
             }
 

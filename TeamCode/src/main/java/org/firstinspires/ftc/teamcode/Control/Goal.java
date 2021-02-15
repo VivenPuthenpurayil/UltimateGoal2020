@@ -44,7 +44,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
 import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
 import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.leftBacks;
+import static org.firstinspires.ftc.teamcode.Control.Constants.Backs;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
@@ -55,6 +55,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.rightBacks;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
+import static org.firstinspires.ftc.teamcode.Control.Constants.colorSensorS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
@@ -81,7 +82,8 @@ public class Goal {
                     //setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
-                    //setupMapping();
+                    setupUltra();
+                    setupIMU();
                     break;
                 case teleop:
                     setupDrivetrain();
@@ -89,6 +91,7 @@ public class Goal {
                     setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
+                    setupUltra();
                     break;
                 case storage:
                     setupStorage();
@@ -202,9 +205,11 @@ public class Goal {
     public Servo whack;
     public Servo pinch;
     public Servo lifter;
-    public ModernRoboticsI2cRangeSensor leftFront, leftBack, rightFront, rightBack;
+    public ModernRoboticsI2cRangeSensor leftFront, Back, rightFront, rightBack;
 
     public BNO055IMUImpl imu;
+
+    public ModernRoboticsI2cColorSensor color1;
 
 //    public ModernRoboticsI2cRangeSensor leftSense;
 //    public ModernRoboticsI2cRangeSensor frontSense;
@@ -256,6 +261,7 @@ public class Goal {
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
+
     public void setupStorage() throws InterruptedException {
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .97);
@@ -287,10 +293,11 @@ public class Goal {
     }
 
     public void setupUltra() throws InterruptedException {
-        leftBack = ultrasonicSensor(leftBacks);
+        Back = ultrasonicSensor(Backs);
         leftFront = ultrasonicSensor(leftFronts);
         rightBack = ultrasonicSensor(rightBacks);
         rightFront = ultrasonicSensor(rightFronts);
+        color1 = MRColor(colorSensorS);
     }
 
 //    public void setupMapping() throws InterruptedException {
