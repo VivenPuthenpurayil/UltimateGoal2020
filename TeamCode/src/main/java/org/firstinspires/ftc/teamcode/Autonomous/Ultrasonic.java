@@ -17,7 +17,7 @@ public class Ultrasonic extends AutonomousControl {
         telemetry.update();
         double angle = 0;
 
-        if (opModeIsActive()) {
+        while (opModeIsActive()) {
             double distanceBack = rob.rightBack.getDistance(DistanceUnit.CM);
             double distanceFront = rob.rightFront.getDistance(DistanceUnit.CM);
             telemetry.addData("right back cm", "%.2f cm", rob.rightBack.getDistance(DistanceUnit.CM));
@@ -28,9 +28,10 @@ public class Ultrasonic extends AutonomousControl {
             telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
             telemetry.update();
 
-            while (rob.Back.getDistance((DistanceUnit.CM))< 156){
-                rob.driveTrainMovement(.5, Goal.movements.forward);
-            }
+//            while (rob.Back.getDistance((DistanceUnit.CM))< 156){
+//                rob.driveTrainMovement(.5, Goal.movements.forward);
+//            }
+
           /*  if (distanceBack > 1000 || distanceFront > 1000) {
                 continue;
             }
