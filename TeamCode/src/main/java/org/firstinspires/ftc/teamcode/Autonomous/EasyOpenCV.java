@@ -76,9 +76,9 @@ public class EasyOpenCV extends AutonomousControl
 
         if (opModeIsActive())
         {
-            rob.driveTrainEncoderMovement(0.5, 10, 4, 0, Goal.movements.forward);
+            //rob.driveTrainEncoderMovement(0.5, 10, 4, 0, Goal.movements.forward);
 
-            while(runtime.milliseconds() - currTime < 5000) {
+            while(runtime.milliseconds() < 5000) {
                 telemetry.addData("Analysis", pipeline.getAnalysis());
                 telemetry.addData("Position", pipeline.position);
                 telemetry.addData("Value", pipeline.value);

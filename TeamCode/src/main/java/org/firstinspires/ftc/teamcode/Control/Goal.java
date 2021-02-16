@@ -46,7 +46,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
 import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
 import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.leftBacks;
+import static org.firstinspires.ftc.teamcode.Control.Constants.Backs;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
@@ -57,6 +57,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.rightBacks;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;
 import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
 import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
+import static org.firstinspires.ftc.teamcode.Control.Constants.colorSensorS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
 //import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
@@ -83,7 +84,8 @@ public class Goal {
                     //setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
-                    //setupMapping();
+                    setupUltra();
+                    setupIMU();
                     break;
                 case teleop:
                     setupDrivetrain();
@@ -91,6 +93,7 @@ public class Goal {
                     setupCollection();
                     setupFly();
                     setupWobbleGoalSystem();
+                    setupUltra();
                     break;
                 case storage:
                     setupStorage();
@@ -192,7 +195,7 @@ public class Goal {
     public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
 
-    //OpenCV Variable
+    //OpenCV Variables
     public OpenCvWebcam webcam;
 
 
@@ -210,9 +213,11 @@ public class Goal {
     public Servo whack;
     public Servo pinch;
     public Servo lifter;
-    public ModernRoboticsI2cRangeSensor leftFront, leftBack, rightFront, rightBack, Back;
+    public ModernRoboticsI2cRangeSensor leftFront, Back, rightFront, rightBack;
 
     public BNO055IMUImpl imu;
+
+    public ModernRoboticsI2cColorSensor color1;
 
 //    public ModernRoboticsI2cRangeSensor leftSense;
 //    public ModernRoboticsI2cRangeSensor frontSense;
@@ -264,6 +269,7 @@ public class Goal {
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
+
     public void setupStorage() throws InterruptedException {
         whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
         lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .97);
@@ -295,17 +301,17 @@ public class Goal {
     }
 
     public void setupUltra() throws InterruptedException {
-        leftBack = ultrasonicSensor(leftBacks);
+        Back = ultrasonicSensor(Backs);
         leftFront = ultrasonicSensor(leftFronts);
         rightBack = ultrasonicSensor(rightBacks);
         rightFront = ultrasonicSensor(rightFronts);
+        color1 = MRColor(colorSensorS);
     }
 
-    public void setupOpenCV() throws InterruptedException {
+    public void setupOpenCV() throws InterruptedException{
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
     }
-
 //    public void setupMapping() throws InterruptedException {
 //
 //        leftSense = ultrasonicSensor(leftSenseS);
@@ -956,44 +962,44 @@ public class Goal {
     }
 
     public static double[] anyDirection(double speed, double angleDegrees) {
-    double theta = Math.toRadians(angleDegrees);
-    double beta = Math.atan(yToXRatio);
+        double theta = Math.toRadians(angleDegrees);
+        double beta = Math.atan(yToXRatio);
 
-    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
 
-    double[] retval = {v1, v2};
-    return retval;
+        double[] retval = {v1, v2};
+        return retval;
     }
 
     public static double[] anyDirectionRadians(double speed, double angleRadians) {
-    double theta = angleRadians;
-    double beta = Math.atan(yToXRatio);
+        double theta = angleRadians;
+        double beta = Math.atan(yToXRatio);
 
-    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
 
-    double[] retval = {v1, v2};
-    return retval;
+        double[] retval = {v1, v2};
+        return retval;
     }
 
     public void driveTrainMovementAngle(double speed, double angle) {
 
-    double[] speeds = anyDirection(speed, angle);
-    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+        double[] speeds = anyDirection(speed, angle);
+        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
 
     }
 
     public void driveTrainMovementAngleRadians(double speed, double angle) {
 
-    double[] speeds = anyDirectionRadians(speed, angle);
-    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+        double[] speeds = anyDirectionRadians(speed, angle);
+        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
 
     }
 
