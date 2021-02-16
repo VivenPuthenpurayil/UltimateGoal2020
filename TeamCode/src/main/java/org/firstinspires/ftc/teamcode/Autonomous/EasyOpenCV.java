@@ -50,7 +50,7 @@ public class EasyOpenCV extends AutonomousControl
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, Goal.setupType.openCV);
+        setup(runtime, Goal.setupType.openCV, Goal.setupType.autonomous);
         telemetry.addLine("Start!");
         telemetry.update();
 

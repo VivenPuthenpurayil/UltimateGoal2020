@@ -114,6 +114,9 @@ public class Goal {
                 case imu:
                     setupIMU();
                     break;
+                case openCV:
+                    setupOpenCV();
+                    break;
 
             }
 
