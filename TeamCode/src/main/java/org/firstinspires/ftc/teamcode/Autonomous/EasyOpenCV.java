@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2020 OpenFTC Team
  *
@@ -21,10 +22,12 @@
 
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.vuforia.EyewearDevice;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
+import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -38,47 +41,60 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@TeleOp
-public class EasyOpenCV extends LinearOpMode
+@Autonomous(name="TTTT Open CV", group = "basic")
+public class EasyOpenCV extends AutonomousControl
 {
-    OpenCvInternalCamera phoneCam;
     SkystoneDeterminationPipeline pipeline;
-    OpenCvWebcam webcam;
+
 
     @Override
-    public void runOpMode()
+    public void runOpMode() throws InterruptedException
     {
+        setup(runtime, Goal.setupType.openCV);
+        telemetry.addLine("Start!");
+        telemetry.update();
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new SkystoneDeterminationPipeline();
-        phoneCam.setPipeline(pipeline);
+        rob.webcam.setPipeline(pipeline);
 
         // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
         // out when the RC activity is in portrait. We do our actual image processing assuming
         // landscape orientation, though.
-        phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        rob.webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                rob.webcam.startStreaming(320,240);
             }
-        }
-        );
+        });
+
+        double currTime = runtime.milliseconds();
 
         waitForStart();
 
-        while (opModeIsActive())
+        if (opModeIsActive())
         {
-            telemetry.addData("Analysis", pipeline.getAnalysis());
-            telemetry.addData("Position", pipeline.position);
-            telemetry.update();
+            rob.driveTrainEncoderMovement(0.5, 10, 4, 0, Goal.movements.forward);
 
-            // Don't burn CPU cycles busy-looping in this sample
-            sleep(50);
+            while(runtime.milliseconds() - currTime < 5000) {
+                telemetry.addData("Analysis", pipeline.getAnalysis());
+                telemetry.addData("Position", pipeline.position);
+                telemetry.addData("Value", pipeline.value);
+                telemetry.update();
+
+                // Don't burn CPU cycles busy-looping in this sample
+                sleep(50);
+            }
+            if (pipeline.value == 4){
+
+            }else if(pipeline.value == 1){
+
+            }else{
+
+            }
+
         }
     }
 
@@ -94,6 +110,7 @@ public class EasyOpenCV extends LinearOpMode
             NONE
         }
 
+        public int value = 0;
         /*
          * Some color constants
          */
@@ -103,12 +120,12 @@ public class EasyOpenCV extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(181,98);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,98);
 
-        static final int REGION_WIDTH = 35;
-        static final int REGION_HEIGHT = 25;
+        static final int REGION_WIDTH = 100;
+        static final int REGION_HEIGHT = 100;
 
-        final int FOUR_RING_THRESHOLD = 150;
+        final int FOUR_RING_THRESHOLD = 147;
         final int ONE_RING_THRESHOLD = 135;
 
         Point region1_pointA = new Point(
@@ -127,7 +144,7 @@ public class EasyOpenCV extends LinearOpMode
         int avg1;
 
         // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile RingPosition position = RingPosition.FOUR;
+        public volatile RingPosition position = RingPosition.FOUR;
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -164,10 +181,13 @@ public class EasyOpenCV extends LinearOpMode
             position = RingPosition.FOUR; // Record our analysis
             if(avg1 > FOUR_RING_THRESHOLD){
                 position = RingPosition.FOUR;
+                value = 4;
             }else if (avg1 > ONE_RING_THRESHOLD){
                 position = RingPosition.ONE;
+                value = 1;
             }else{
                 position = RingPosition.NONE;
+                value = 0;
             }
 
             Imgproc.rectangle(

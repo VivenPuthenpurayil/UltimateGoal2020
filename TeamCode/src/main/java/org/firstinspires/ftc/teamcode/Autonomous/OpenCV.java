@@ -22,6 +22,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.vuforia.EyewearDevice;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
@@ -38,14 +39,14 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous
-public class EasyOpenCVExample extends AutonomousControl
+@Autonomous(name="Open CV", group = "basic")
+public class OpenCV extends AutonomousControl
 {
     SkystoneDeterminationPipeline pipeline;
     OpenCvWebcam webcam;
 
     @Override
-    public void runOpMode()
+    public void runOpMode() throws InterruptedException
     {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -106,7 +107,7 @@ public class EasyOpenCVExample extends AutonomousControl
         static final int REGION_WIDTH = 100;
         static final int REGION_HEIGHT = 100;
 
-        final int FOUR_RING_THRESHOLD = 150;
+        final int FOUR_RING_THRESHOLD = 147;
         final int ONE_RING_THRESHOLD = 135;
 
         Point region1_pointA = new Point(
