@@ -28,8 +28,9 @@ public class CurrentTeleop extends TeleOpControl {
         while (opModeIsActive()){
             double distanceBack = rob.rightBack.getDistance(DistanceUnit.CM);
             double distanceFront = rob.rightFront.getDistance(DistanceUnit.CM);
-            telemetry.addData("back", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
-            telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
+            //telemetry.addData("back", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
+            //telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
+            telemetry.addData("front", "%.2f cm", rob.rightFront.getDistance(DistanceUnit.CM));
             telemetry.update();
             standardGamepadData();
 
@@ -196,6 +197,11 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.collection.setPower(0);
             }
 
+            if (gamepad1.x) {
+                angle = (Math.atan((distanceFront - distanceBack) / 6.6142) * 180) / (3.1415);
+                rob.driveTrainEncoderMovement(.5, 12.75 / 90 * angle, 10, 10, Goal.movements.ccw);
+            }
+
             if (move_to_pos) {
                 if (distanceBack > 1000 || distanceFront > 1000) {
                     continue;
@@ -214,8 +220,27 @@ public class CurrentTeleop extends TeleOpControl {
                     else break;
                 }
 
+                int error_dist = 5;
+                while (rob.rightFront.getDistance((DistanceUnit.CM)) < 45 - error_dist  || rob.rightFront.getDistance((DistanceUnit.CM)) > 45 + error_dist) {
+
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) > 1000){
+                        continue;
+                    }
+
+                    telemetry.addData("front", "%.2f cm", rob.rightFront.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) < 45 + error_dist){
+                        rob.driveTrainMovement(0.3, Goal.movements.left);
+                    }
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) > 45 - error_dist){
+                        rob.driveTrainMovement(0.3, Goal.movements.right);
+                    }
+                }
+
                 move_to_pos = false;
             }
+
 
             /*
                 if(gamepad2.dpad_up){
@@ -308,5 +333,3 @@ public class CurrentTeleop extends TeleOpControl {
                 sleep(500);
             }
  */
-
-

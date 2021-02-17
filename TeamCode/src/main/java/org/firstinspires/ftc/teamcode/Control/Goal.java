@@ -86,6 +86,7 @@ public class Goal {
                     setupWobbleGoalSystem();
                     setupUltra();
                     setupIMU();
+                    setupOpenCV();
                     break;
                 case teleop:
                     setupDrivetrain();
