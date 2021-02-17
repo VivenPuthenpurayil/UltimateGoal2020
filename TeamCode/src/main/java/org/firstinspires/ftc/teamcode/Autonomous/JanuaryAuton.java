@@ -51,8 +51,9 @@ public class JanuaryAuton extends AutonomousControl
         pipeline = new SkystoneDeterminationPipeline();
         rob.webcam.setPipeline(pipeline);
 
+        //
         // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
-        // out when the RC activity is in portrait. We do our actual image processing assuming
+        // out when the RC activity is in portrait.We do our actual image processing assuming
         // landscape orientation, though.
 
         rob.webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
