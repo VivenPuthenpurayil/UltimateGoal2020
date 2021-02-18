@@ -19,16 +19,10 @@ public class DecemberMeet extends AutonomousControl {
 
         if (opModeIsActive()){
 
-            // pick up wobble goal
-//            rob.claw.setPower(-0.4);
-//            sleep(750);
-//            rob.claw.setPower(0);
-//            sleep(250);
+
 
             //move to red square
-            //    rob.driveTrainEncoderMovement(1,10,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,66,20,0,Goal.movements.forward);
-            // previous 63
 
             //drop wobble goal
             rob.pinch.setPosition(0.8);
@@ -71,7 +65,6 @@ public class DecemberMeet extends AutonomousControl {
             sleep(250);
 
             // move backwards to go back to red square
-//            rob.driveTrainEncoderMovement(1,15,20,0,Goal.movements.backward);
             rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.ccw);
             rob.driveTrainEncoderMovement(1,23,20,0,Goal.movements.right);
             rob.driveTrainEncoderMovement(1,42,20,0,Goal.movements.forward);
@@ -103,11 +96,6 @@ public class DecemberMeet extends AutonomousControl {
             rob.driveTrainEncoderMovement(1,9,20,0,Goal.movements.forward);
 
 
-//            rob.fly.setPower(-0.72);
-//            sleep(2000);
-// 2000
-
-            // shoot your shots
 
             sleep(500);
             for(int i = 0; i<=2; i++) {
