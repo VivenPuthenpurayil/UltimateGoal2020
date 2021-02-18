@@ -1,0 +1,960 @@
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/Goal.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.Control;\n\nimport com.qualcomm.hardware.bosch.BNO055IMU;\nimport com.qualcomm.hardware.bosch.BNO055IMUImpl;\nimport com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;\nimport com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;\nimport com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;\nimport com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;\nimport com.qualcomm.hardware.rev.Rev2mDistanceSensor;\nimport com.qualcomm.robotcore.hardware.CRServo;\nimport com.qualcomm.robotcore.hardware.ColorSensor;\nimport com.qualcomm.robotcore.hardware.DcMotor;\nimport com.qualcomm.robotcore.hardware.DcMotorSimple;\nimport com.qualcomm.robotcore.hardware.HardwareMap;\nimport com.qualcomm.robotcore.hardware.Servo;\nimport com.qualcomm.robotcore.hardware.UltrasonicSensor;\nimport com.qualcomm.robotcore.util.ElapsedTime;\n\nimport org.firstinspires.ftc.robotcore.external.ClassFactory;\nimport org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;\nimport org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;\nimport org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;\nimport org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;\nimport org.firstinspires.ftc.robotcore.external.navigation.AxesReference;\nimport org.firstinspires.ftc.robotcore.external.navigation.Orientation;\nimport org.firstinspires.ftc.robotcore.external.navigation.Position;\nimport org.firstinspires.ftc.robotcore.external.navigation.Velocity;\nimport org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;\nimport org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;\nimport org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;\n\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\nimport static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;\nimport static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;\nimport static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;\nimport static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;\nimport static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_COREHEXMOTOR_INCH;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_GOBUILDA435RPM_INCH;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.claws;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.collections;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.flys;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.imuS;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.leftBacks;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.leftFronts;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.pincher;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.rightBacks;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.whacker;\nimport static org.firstinspires.ftc.teamcode.Control.Constants.lifters;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.rightfrontSenseS;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.rightbackSenseS;\n//import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;\n\n\npublic class Goal {\n\n    public Goal(HardwareMap hardwareMap, ElapsedTime runtime, Central central, setupType... setup) throws InterruptedException {\n        this.hardwareMap = hardwareMap;\n        this.runtime = runtime;\n        this.central = central;\n\n\n        StringBuilder i = new StringBuilder();\n\n        for (setupType type: setup) {\n            switch (type) {\n                case autonomous:\n                    setupDrivetrain();\n                    setupStorage();\n                    //setupCollection();\n                    setupFly();\n                    setupWobbleGoalSystem();\n                    //setupMapping();\n                    break;\n                case teleop:\n                    setupDrivetrain();\n                    setupStorage();\n                    setupCollection();\n                    setupFly();\n                    setupWobbleGoalSystem();\n                    break;\n                case storage:\n                    setupStorage();\n                    setupFly();\n                    break;\n                case wobblegoal:\n                    setupWobbleGoalSystem();\n                    break;\n                case flywheel:\n                    setupFly();\n                    break;\n                case collectionsystem:\n                    setupCollection();\n                    break;\n                case drivetrain_system:\n                    setupDrivetrain();\n                    break;\n                case ultra:\n                    setupUltra();\n                    break;\n                case imu:\n                    setupIMU();\n                    break;\n\n            }\n\n            i.append(type.name()).append(\" \");\n\n        }\n        central.telemetry.addLine(i.toString());\n        central.telemetry.update();\n\n    }\n\n    // important non-confdiguration field\n    public ElapsedTime runtime;     //set in constructor to the runtime of running class\n    public Central central;\n    public HardwareMap hardwareMap;\n\n    public boolean target = false;\n    public boolean moving1 = false;\n    public boolean moving2 = false;\n    public boolean moving3 = false;\n    public boolean stop = false;\n    public boolean straight = false;\n    public int x = 0;\n    public int y = 0;\n    public int blockNumber = 0;\n\n    public int[] wheelAdjust = {1, 1, 1, 1};\n\n    public static double speedAdjust = 20.0 / 41.0;\n    public static double yToXRatio = 1.25;\n\n    public void setWheelAdjust(int fr, int fl, int br, int bl) {\n        wheelAdjust[0] = fr;\n        wheelAdjust[1] = fl;\n        wheelAdjust[2] = br;\n        wheelAdjust[3] = bl;\n    }\n    //----specfic non-configuration fields\n    //none rnh\n\n\n    // Vuforia Variables\n    public static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;\n    public static final boolean PHONE_IS_PORTRAIT = false  ;\n\n    public final String VUFORIA_KEY =\n            \" AYzLd0v/////AAABmR035tu9m07+uuZ6k86JLR0c/MC84MmTzTQa5z2QOC45RUpRTBISgipZ2Aop4XzRFFIvrLEpsop5eEBl5yu5tJxK6jHbMppJyWH8lQbvjz4PAK+swG4ALuz2M2MdFXWl7Xh67s/XfIFSq1UJpX0DgwmZnoDCYHmx/MnFbyxvpWIMLZziaJqledMpZtmH11l1/AS0oH+mrzWQLB57w1Ur0FRdhpxcrZS9KG09u6I6vCUc8EqkHqG7T2Zm4QdnytYWpVBBu17iRNhmsd3Ok3w8Pn22blBYRo6dZZ8oscyQS1ZtilM1YT49ORQHc8mu/BMWh06LxdstWctSiGiBV0+Wn3Zk++xQ750c64lg3QLjNkXc\";\n\n    // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.\n    // We will define some constants and conversions here\n    public static final float mmPerInch        = 25.4f;\n    public static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor\n\n    // Constants for perimeter targets\n    public static final float halfField = 72 * mmPerInch;\n    public static final float quadField  = 36 * mmPerInch;\n\n    // Class Members\n    public OpenGLMatrix lastLocation = null;\n    public VuforiaLocalizer vuforia = null;\n\n    /**\n     * This is the webcam we are to use. As with other hardware devices such as motors and\n     * servos, this device is identified using the robot configuration tool in the FTC application.\n     */\n    public WebcamName webcamName = null;\n\n    public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();\n    public VuforiaTrackables targetsUltimateGoal;\n    public boolean targetVisible = false;\n    public OpenGLMatrix robotFromCamera;\n    public int cameraMonitorViewId;\n    public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);\n\n\n\n    //----------------CONFIGURATION FIELDS--------------------\n    public DcMotor[] drivetrain;   //set in motorDriveMode() for drivetrain movement functions\n\n    public DcMotor motorFR;\n    public DcMotor motorFL;\n    public DcMotor motorBR;\n    public DcMotor motorBL;\n\n    public DcMotor fly;\n    public DcMotor collection;\n    public DcMotor claw;\n    public Servo whack;\n    public Servo pinch;\n    public Servo lifter;\n    public ModernRoboticsI2cRangeSensor leftFront, leftBack, rightFront, rightBack;\n\n    public BNO055IMUImpl imu;\n\n//    public ModernRoboticsI2cRangeSensor leftSense;\n//    public ModernRoboticsI2cRangeSensor frontSense;\n//    public Rev2mDistanceSensor rightfrontSense;\n//    public Rev2mDistanceSensor rightbackSense;\n//    public ModernRoboticsI2cRangeSensor backSense;\n\n\n    public double StrafetoTotalPower = 2.0/3.0;\n\n    //----       IMU        ----\n\n    public BNO055IMUImpl.Parameters imuparameters = new BNO055IMUImpl.Parameters();\n    public Orientation current;\n    public static boolean isnotstopped;\n    public float initorient;\n\n    public void setupIMU() throws InterruptedException{\n        imuparameters.angleUnit = BNO055IMUImpl.AngleUnit.DEGREES;\n        imuparameters.accelUnit = BNO055IMUImpl.AccelUnit.METERS_PERSEC_PERSEC;\n        imuparameters.calibrationDataFile = \"AdafruitIMUCalibration.json\"; // see the calibration sample opmode\n        imuparameters.loggingEnabled = true; //copypasted from BNO055IMU sample code, no clue what this does\n        imuparameters.loggingTag = \"imu\"; //copypasted from BNO055IMU sample code, no clue what this does\n        imu = hardwareMap.get(BNO055IMUImpl.class, imuS);\n        imu.initialize(imuparameters);\n        initorient = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;\n        central.telemetry.addData(\"IMU status\", imu.getSystemStatus());\n        central.telemetry.update();\n\n        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();\n        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();\n\n        imu.initialize(parameters);\n\n        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);\n\n\n    }\n\n\n\n\n    public void setupDrivetrain() throws InterruptedException {\n        motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);\n        motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);\n        motorBR = motor(motorBRS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);\n        motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);\n\n        motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);\n    }\n\n    public void setupStorage() throws InterruptedException {\n        whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);\n        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .97);\n        // teleop .98\n        encoder(EncoderMode.OFF, fly);\n    }\n\n    public void setupCollection() throws InterruptedException{\n        collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);\n\n        encoder(EncoderMode.ON, collection);\n\n    }\n\n    public void setupFly() throws InterruptedException{\n        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT);\n\n        encoder(EncoderMode.OFF, fly);\n\n\n    }\n\n    public void setupWobbleGoalSystem() throws InterruptedException {\n        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);\n        pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0.2);\n\n        encoder(EncoderMode.OFF, claw);\n\n    }\n\n    public void setupUltra() throws InterruptedException {\n        leftBack = ultrasonicSensor(leftBacks);\n        leftFront = ultrasonicSensor(leftFronts);\n        rightBack = ultrasonicSensor(rightBacks);\n        rightFront = ultrasonicSensor(rightFronts);\n    }\n\n//    public void setupMapping() throws InterruptedException {\n//\n//        leftSense = ultrasonicSensor(leftSenseS);\n//        //frontSense = ultrasonicSensor(frontSenseS);\n//        rightfrontSense = therealUS(rightfrontSenseS);\n//        rightbackSense = therealUS(rightbackSenseS);\n//        backSense = ultrasonicSensor(backSenseS);\n//    }\n\n    public void setupVuforia() throws InterruptedException{\n        float phoneXRotate    = 0;\n        float phoneYRotate    = 0;\n        float phoneZRotate    = 0;\n\n        webcamName = hardwareMap.get(WebcamName.class, \"Webcam 1\");\n\n        /*\n         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.\n         * We can pass Vuforia the handle to a camera preview resource (on the RC phone);\n         * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).\n         */\n        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(\"cameraMonitorViewId\", \"id\", hardwareMap.appContext.getPackageName());\n        parameters.vuforiaLicenseKey = VUFORIA_KEY;\n\n        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();\n\n        parameters.vuforiaLicenseKey = VUFORIA_KEY;\n\n        /**\n         * We also indicate which camera on the RC we wish to use.\n         */\n        parameters.cameraName = webcamName;\n\n        // Make sure extended tracking is disabled for this example.\n        parameters.useExtendedTracking = false;\n\n        //  Instantiate the Vuforia engine\n        vuforia = ClassFactory.getInstance().createVuforia(parameters);\n\n        // Load the data sets for the trackable objects. These particular data\n        // sets are stored in the 'assets' part of our application.\n        targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset(\"UltimateGoal\");\n        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);\n        blueTowerGoalTarget.setName(\"Blue Tower Goal Target\");\n        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);\n        redTowerGoalTarget.setName(\"Red Tower Goal Target\");\n        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);\n        redAllianceTarget.setName(\"Red Alliance Target\");\n        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);\n        blueAllianceTarget.setName(\"Blue Alliance Target\");\n        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);\n        frontWallTarget.setName(\"Front Wall Target\");\n\n        allTrackables.addAll(targetsUltimateGoal);\n\n        /**\n         * In order for localization to work, we need to tell the system where each target is on the field, and\n         * where the phone resides on the robot.  These specifications are in the form of <em>transformation matrices.</em>\n         * Transformation matrices are a central, important concept in the math here involved in localization.\n         * See <a href=\"https://en.wikipedia.org/wiki/Transformation_matrix\">Transformation Matrix</a>\n         * for detailed information. Commonly, you'll encounter transformation matrices as instances\n         * of the {@link OpenGLMatrix} class.\n         *\n         * If you are standing in the Red Alliance Station looking towards the center of the field,\n         *     - The X axis runs from your left to the right. (positive from the center to the right)\n         *     - The Y axis runs from the Red Alliance Station towards the other side of the field\n         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)\n         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)\n         *\n         * Before being transformed, each target image is conceptually located at the origin of the field's\n         *  coordinate system (the center of the field), facing up.\n         */\n\n        //Set the position of the perimeter targets with relation to origin (center of field)\n        redAllianceTarget.setLocation(OpenGLMatrix\n                .translation(0, -halfField, mmTargetHeight)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));\n\n        blueAllianceTarget.setLocation(OpenGLMatrix\n                .translation(0, halfField, mmTargetHeight)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));\n        frontWallTarget.setLocation(OpenGLMatrix\n                .translation(-halfField, 0, mmTargetHeight)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));\n\n        // The tower goal targets are located a quarter field length from the ends of the back perimeter wall.\n        blueTowerGoalTarget.setLocation(OpenGLMatrix\n                .translation(halfField, quadField, mmTargetHeight)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));\n        redTowerGoalTarget.setLocation(OpenGLMatrix\n                .translation(halfField, -quadField, mmTargetHeight)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));\n\n        //\n        // Create a transformation matrix describing where the phone is on the robot.\n        //\n        // NOTE !!!!  It's very important that you turn OFF your phone's Auto-Screen-Rotation option.\n        // Lock it into Portrait for these numbers to work.\n        //\n        // Info:  The coordinate frame for the robot looks the same as the field.\n        // The robot's \"forward\" direction is facing out along X axis, with the LEFT side facing out along the Y axis.\n        // Z is UP on the robot.  This equates to a bearing angle of Zero degrees.\n        //\n        // The phone starts out lying flat, with the screen facing Up and with the physical top of the phone\n        // pointing to the LEFT side of the Robot.\n        // The two examples below assume that the camera is facing forward out the front of the robot.\n\n        // We need to rotate the camera around it's long axis to bring the correct camera forward.\n        if (CAMERA_CHOICE == BACK) {\n            phoneYRotate = -90;\n        } else {\n            phoneYRotate = 90;\n        }\n\n        // Rotate the phone vertical about the X axis if it's in portrait mode\n        if (PHONE_IS_PORTRAIT) {\n            phoneXRotate = 90 ;\n        }\n\n        // Next, translate the camera lens to where it is on the robot.\n        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.\n        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center\n        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground\n        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line\n\n        robotFromCamera = OpenGLMatrix\n                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)\n                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));\n    }\n\n\n\n\n    //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------\n    public DcMotor motor(String name, DcMotor.Direction directionm, DcMotor.ZeroPowerBehavior zeroPowerBehavior) throws InterruptedException {\n        DcMotor motor = hardwareMap.dcMotor.get(name);\n        motor.setDirection(DcMotor.Direction.FORWARD);\n        motor.setZeroPowerBehavior(zeroPowerBehavior);\n        motor.setPower(0);\n        return motor;\n    }\n\n    public Servo servo(String name, Servo.Direction direction, double min, double max, double start) throws InterruptedException {\n        Servo servo = hardwareMap.servo.get(name);\n        servo.setDirection(direction);\n        servo.scaleRange(min, max);\n        servo.setPosition(start);\n        return servo;\n    }\n    public CRServo servo(String name, DcMotorSimple.Direction direction, double startSpeed) throws InterruptedException {\n        CRServo servo = hardwareMap.crservo.get(name);\n        servo.setDirection(direction);\n\n        servo.setPower(startSpeed);\n        return servo;\n    }\n    public ColorSensor colorSensor(String name, boolean ledOn) throws InterruptedException {\n        ColorSensor sensor = hardwareMap.colorSensor.get(name);\n        sensor.enableLed(ledOn);\n\n        central.telemetry.addData(\"Beacon Red Value: \", sensor.red());\n        central.telemetry.update();\n\n        return sensor;\n    }\n    public ModernRoboticsI2cRangeSensor ultrasonicSensor(String name) throws InterruptedException {\n\n        return hardwareMap.get(ModernRoboticsI2cRangeSensor.class, name);\n    }\n    public Rev2mDistanceSensor therealUS(String name) throws InterruptedException {\n        return hardwareMap.get(Rev2mDistanceSensor.class, name);\n    }\n\n    public ModernRoboticsI2cColorSensor MRColor(String name) throws InterruptedException{\n        return hardwareMap.get(ModernRoboticsI2cColorSensor.class, name);\n\n    }\n\n    public  ModernRoboticsAnalogOpticalDistanceSensor realUS(String name) throws InterruptedException {\n        return hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, name);\n    }\n\n    public void encoder(EncoderMode mode, DcMotor... motor) throws InterruptedException {\n        switch (mode) {\n            case ON:\n                for (DcMotor i : motor) {\n                    i.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);\n                }\n                central.idle();\n                for (DcMotor i : motor) {\n                    i.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n                }\n                break;\n            case OFF:\n                break;\n        }\n\n    }\n\n    public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {\n\n        switch (mode) {\n            case ON:\n                for (DcMotor i : motor) {\n                    i.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);\n                }\n                central.idle();\n                for (DcMotor i : motor) {\n                    i.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n                }\n                break;\n            case OFF:\n                break;\n        }\n\n        this.drivetrain = motor;\n\n    }\n\n    public void driveTrainEncoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement) throws  InterruptedException{\n\n        int[] targets = new int[drivetrain.length];\n        double[] signs = movement.getDirections();\n\n        // Ensure that the opmode is still active\n        if (central.opModeIsActive()) {\n            // Determine new target position, and pass to motor controller\n\n\n            for (DcMotor motor : drivetrain){\n                int x = Arrays.asList(drivetrain).indexOf(motor);\n                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);\n            }\n            for (DcMotor motor: drivetrain){\n                int x = Arrays.asList(drivetrain).indexOf(motor);\n                motor.setTargetPosition(targets[x]);\n            }\n            for (DcMotor motor: drivetrain){\n                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n            }\n            runtime.reset();\n\n            for (DcMotor motor:drivetrain){\n                motor.setPower(Math.abs(speed));\n            }\n\n            // keep looping while we are still active, and there is time left, and both motors are running.\n            boolean x = true;\n            while (central.opModeIsActive() &&\n                    (runtime.seconds() < timeoutS) &&\n                    (x)) {\n\n                // Display it for the driver.\n                // Allow time for other processes to run.\n                central.idle();\n\n                for (int i = 0; i < drivetrain.length; i++) {\n                    DcMotor motor = drivetrain[i];\n                    if (!motor.isBusy() && signs[i] != 0) {\n                        x = false;\n                    }\n                }\n            }\n\n            // Stop all motion;\n            for (DcMotor motor: drivetrain){\n                motor.setPower(0);\n            }\n\n            // Turn off RUN_TO_POSITION\n            for (DcMotor motor: drivetrain){\n                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n            }\n            central.sleep(waitAfter);\n\n\n        }\n    }\n\n    public void encoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws  InterruptedException{\n\n        int[] targets = new int[motors.length];\n        double[] signs = movement.getDirections();\n\n        // Ensure that the opmode is still active\n        if (central.opModeIsActive()) {\n            // Determine new target position, and pass to motor controller\n\n            for (DcMotor motor : motors){\n                int x = Arrays.asList(motors).indexOf(motor);\n                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);\n            }\n            for (DcMotor motor: motors){\n                int x = Arrays.asList(motors).indexOf(motor);\n                motor.setTargetPosition(targets[x]);\n            }\n            for (DcMotor motor: motors){\n                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n            }\n            runtime.reset();\n\n            for (DcMotor motor:motors){\n                motor.setPower(Math.abs(speed));\n            }\n\n            // keep looping while we are still active, and there is time left, and both motors are running.\n            boolean x = true;\n            while (central.opModeIsActive() &&\n                    (runtime.seconds() < timeoutS) &&\n                    (x)) {\n\n                // Display it for the driver.\n                // Allow time for other processes to run.\n                central.idle();\n                for (DcMotor motor: motors){\n                    if (!motor.isBusy()){\n                        x =false;\n                    }\n                }\n            }\n\n            // Stop all motion;\n            for (DcMotor motor: motors){\n                motor.setPower(0);\n            }\n\n            // Turn off RUN_TO_POSITION\n            for (DcMotor motor: motors){\n                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n            }\n            central.sleep(waitAfter);\n\n\n        }\n    }\n    public void encodeCoreHexMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws  InterruptedException{\n\n        int[] targets = new int[motors.length];\n        double[] signs = movement.getDirections();\n\n        // Ensure that the opmode is still active\n        if (central.opModeIsActive()) {\n            // Determine new target position, and pass to motor controller\n\n            for (DcMotor motor : motors){\n                int x = Arrays.asList(motors).indexOf(motor);\n                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_COREHEXMOTOR_INCH);\n            }\n            for (DcMotor motor: motors){\n                int x = Arrays.asList(motors).indexOf(motor);\n                motor.setTargetPosition(targets[x]);\n            }\n            for (DcMotor motor: motors){\n                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n            }\n            runtime.reset();\n\n            for (DcMotor motor:motors){\n                motor.setPower(Math.abs(speed));\n            }\n\n            // keep looping while we are still active, and there is time left, and both motors are running.\n            boolean x = true;\n            while (central.opModeIsActive() &&\n                    (runtime.seconds() < timeoutS) &&\n                    (x)) {\n\n                // Display it for the driver.\n                // Allow time for other processes to run.\n                central.idle();\n                for (DcMotor motor: motors){\n                    if (!motor.isBusy()){\n                        x =false;\n                    }\n                }\n            }\n\n            // Stop all motion;\n            for (DcMotor motor: motors){\n                motor.setPower(0);\n            }\n\n            // Turn off RUN_TO_POSITION\n            for (DcMotor motor: motors){\n                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n            }\n            central.sleep(waitAfter);\n\n\n        }\n    }\n\n    //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------\n    public void driveTrainMovement(double speed, movements movement) throws InterruptedException{\n        double[] signs = movement.getDirections();\n        for (DcMotor motor: drivetrain){\n            int x = Arrays.asList(drivetrain).indexOf(motor);\n            motor.setPower(signs[x] * wheelAdjust[x]* speed);\n\n        }\n    }\n    public void driveTrainMovement(double... speed) throws InterruptedException{\n\n        for (int i = 0; i < drivetrain.length; i++) {\n            drivetrain[i].setPower(speed[i]);\n        }\n    }\n    public void driveTrainTimeMovement(double speed, movements movement, long duration, long waitAfter) throws InterruptedException{\n        double[] signs = movement.getDirections();\n        for (DcMotor motor: drivetrain){\n            int x = Arrays.asList(drivetrain).indexOf(motor);\n            motor.setPower(signs[x] * wheelAdjust[x]* speed);\n\n        }\n        central.sleep(duration);\n        stopDrivetrain();\n        central.sleep(waitAfter);\n    }\n\n    public void anyMovement(double speed, movements movement, DcMotor... motors) throws InterruptedException{\n        double[] signs = movement.getDirections();\n        for (DcMotor motor: motors){\n            int x = Arrays.asList(motors).indexOf(motor);\n            motor.setPower(signs[x] * wheelAdjust[x]* speed);\n\n        }\n    }\n    public void anyMovementTime(double speed, movements movement, long duration, DcMotor... motors) throws InterruptedException{\n        double[] signs = movement.getDirections();\n        for (DcMotor motor: motors){\n            int x = Arrays.asList(motors).indexOf(motor);\n            motor.setPower(signs[x] * wheelAdjust[x]* speed);\n\n        }\n        central.sleep(duration);\n        for (DcMotor motor: motors){\n            motor.setPower(0);\n\n        }\n    }\n    public void stopDrivetrain() throws InterruptedException{\n        for (DcMotor motor: drivetrain){\n            motor.setPower(0);\n        }\n    }\n\n    public void powerMotors(double speed, long time, DcMotor... motors) {\n        for (DcMotor motor : motors) {\n            motor.setPower(speed);\n        }\n        central.sleep(time);\n        for (DcMotor motor : motors) {\n            motor.setPower(0);\n        }\n    }\n\n    // IMU Movements\n    public void turn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{\n\n        central.telemetry.addData(\"IMU State: \", imu.getSystemStatus());\n        central.telemetry.update();\n\n        double start = getDirection();\n\n        double end = (start + ((direction == turnside.cw) ? target : -target) + 360) % 360;\n\n        isnotstopped = true;\n        try {\n            switch (rotation_Axis) {\n                case center:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cw : movements.ccw);\n                    break;\n                case back:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwback : movements.ccwback);\n                    break;\n                case front:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwfront : movements.ccwfront);\n                    break;\n            }\n        } catch (InterruptedException e) {\n            isnotstopped = false;\n        }\n\n        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {\n            central.telemetry.addLine(\"First Try \");\n            central.telemetry.addData(\"IMU Inital: \", start);\n            central.telemetry.addData(\"IMU Final Projection: \", end);\n            central.telemetry.addData(\"IMU Orient: \", getDirection());\n            central.telemetry.addData(\"IMU Difference: \", (calculateDifferenceBetweenAngles(end, getDirection())));\n            central.telemetry.update();\n        }\n        try {\n            stopDrivetrain();\n        } catch (InterruptedException e) {\n        }\n        central.sleep(5000);\n\n        while (calculateDifferenceBetweenAngles(getDirection(), end) < -0.25 && central.opModeIsActive()) {\n            driveTrainMovement(0.1, (direction == turnside.cw) ? movements.ccw : movements.cw);\n            central.telemetry.addLine(\"Correctional Try \");\n            central.telemetry.addData(\"IMU Inital: \", start);\n            central.telemetry.addData(\"IMU Final Projection: \", end);\n            central.telemetry.addData(\"IMU Orient: \", getDirection());\n            central.telemetry.addData(\"IMU Diffnce: \", calculateDifferenceBetweenAngles(end, getDirection()));\n            central.telemetry.update();\n\n        }\n        stopDrivetrain();\n        central.sleep(5000);\n\n        central.telemetry.addLine(\"Completed\");\n        central.telemetry.addData(\"IMU Inital: \", start);\n        central.telemetry.addData(\"IMU Final Projection: \", end);\n        central.telemetry.addData(\"IMU Orient: \", getDirection());\n        central.telemetry.addData(\"IMU Diffnce: \", calculateDifferenceBetweenAngles(end, getDirection()));\n        central.telemetry.update();\n        central.sleep(5000);\n    }\n    public void absturn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{\n\n        central.telemetry.addData(\"IMU State: \", imu.getSystemStatus());\n        central.telemetry.update();\n\n        double start = 0;\n\n        double end = (start + ((direction == turnside.cw) ? target : -target) + 360) % 360;\n\n        isnotstopped = true;\n        try {\n            switch (rotation_Axis) {\n                case center:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cw : movements.ccw);\n                    break;\n                case back:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwback : movements.ccwback);\n                    break;\n                case front:\n                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwfront : movements.ccwfront);\n                    break;\n            }\n        } catch (InterruptedException e) {\n            isnotstopped = false;\n        }\n\n        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {\n            central.telemetry.addLine(\"First Try \");\n            central.telemetry.addData(\"IMU Inital: \", start);\n            central.telemetry.addData(\"IMU Final Projection: \", end);\n            central.telemetry.addData(\"IMU Orient: \", getDirection());\n            central.telemetry.addData(\"IMU Difference: \", end - getDirection());\n            central.telemetry.update();\n        }\n        try {\n            stopDrivetrain();\n        } catch (InterruptedException e) {\n        }\n\n        while (calculateDifferenceBetweenAngles(end, getDirection()) > 1 && central.opModeIsActive()){\n            driveTrainMovement(0.05, (direction == turnside.cw) ? movements.ccw : movements.cw);\n            central.telemetry.addLine(\"Correctional Try \");\n            central.telemetry.addData(\"IMU Inital: \", start);\n            central.telemetry.addData(\"IMU Final Projection: \", end);\n            central.telemetry.addData(\"IMU Orient: \", getDirection());\n            central.telemetry.addData(\"IMU Diffnce: \", end - getDirection());\n            central.telemetry.update();\n        }\n        stopDrivetrain();\n        central.telemetry.addLine(\"Completed\");\n        central.telemetry.addData(\"IMU Inital: \", start);\n        central.telemetry.addData(\"IMU Final Projection: \", end);\n        central.telemetry.addData(\"IMU Orient: \", getDirection());\n        central.telemetry.addData(\"IMU Diffnce: \", end - getDirection());\n        central.telemetry.update();\n    }\n\n    public double calculateDifferenceBetweenAngles(double firstAngle, double secondAngle) // negative is secondAngle ccw relative to firstAngle\n    {\n        double difference = secondAngle - firstAngle;\n        while (difference < -180) difference += 360;\n        while (difference > 180) difference -= 360;\n        return -difference;\n    }\n\n    public double getDirection(){\n        return (this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle-initorient+720)%360;\n    }\n\n\n    public enum EncoderMode{\n        ON, OFF;\n    }\n    public enum setupType{\n        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra, imu;\n    }\n\n\n\n    //-------------------SET FUNCTIONS--------------------------------\n    public void setCentral(Central central) {\n        this.central = central;\n    }\n    public void setHardwareMap(HardwareMap hardwareMap) {\n        this.hardwareMap = hardwareMap;\n    }\n    public void setRuntime(ElapsedTime runtime) {\n        this.runtime = runtime;\n    }\n\n    //-------------------CHOICE ENUMS-------------------------\n    public enum movements\n    {\n        // FR FL BR BL\n        left(1, 1, -1, -1),\n        right(-1, -1, 1, 1),\n        forward(1, -1, 1, -1),\n        backward(-1, 1, -1, 1),\n        br(0, -1, 1, 0),\n        bl(1, 0, 0, -1),\n        tl(0, 1, -1, 0),\n        tr(-1, 0, 0, 1),\n        cw(1, 1, 1, 1),\n        ccw(-1, -1, -1, -1),\n        cwback(-1, -1, 0, 0),\n        ccwback(1, 1, 0, 0),\n        cwfront(0, 0, -1, -1),\n        ccwfront(0, 0, 1, 1),\n        linearUp(1),\n        linearDown(-1),\n        clawOut(-1),\n        clawIn(1);\n\n\n\n        private final double[] directions;\n\n        movements(double... signs) {\n            this.directions = signs;\n        }\n\n        public double[] getDirections() {\n            return directions;\n        }\n    }\n\n\n    public enum turnside {\n        ccw, cw\n    }\n\n    public static double[] anyDirection(double speed, double angleDegrees) {\n    double theta = Math.toRadians(angleDegrees);\n    double beta = Math.atan(yToXRatio);\n\n    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));\n    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));\n\n    double[] retval = {v1, v2};\n    return retval;\n    }\n\n    public static double[] anyDirectionRadians(double speed, double angleRadians) {\n    double theta = angleRadians;\n    double beta = Math.atan(yToXRatio);\n\n    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));\n    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));\n\n    double[] retval = {v1, v2};\n    return retval;\n    }\n\n    public void driveTrainMovementAngle(double speed, double angle) {\n\n    double[] speeds = anyDirection(speed, angle);\n    motorFR.setPower(movements.forward.directions[0] * speeds[0]);\n    motorFL.setPower(movements.forward.directions[1] * speeds[1]);\n    motorBR.setPower(movements.forward.directions[2] * speeds[1]);\n    motorBL.setPower(movements.forward.directions[3] * speeds[0]);\n\n    }\n\n    public void driveTrainMovementAngleRadians(double speed, double angle) {\n\n    double[] speeds = anyDirectionRadians(speed, angle);\n    motorFR.setPower(movements.forward.directions[0] * speeds[0]);\n    motorFL.setPower(movements.forward.directions[1] * speeds[1]);\n    motorBR.setPower(movements.forward.directions[2] * speeds[1]);\n    motorBL.setPower(movements.forward.directions[3] * speeds[0]);\n\n    }\n\n    public enum axis {\n        front, center, back\n    }\n\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/Goal.java	(revision 11c4ca9636fc08822182c0302f9e1e0dcc90f6a4)
++++ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/Goal.java	(date 1613093425000)
+@@ -28,6 +28,18 @@
+ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
++import org.firstinspires.ftc.teamcode.Autonomous.EasyOpenCV;
++import org.firstinspires.ftc.teamcode.Autonomous.OpenCV;
++import org.opencv.core.Core;
++import org.opencv.core.Mat;
++import org.opencv.core.Point;
++import org.opencv.core.Rect;
++import org.opencv.core.Scalar;
++import org.opencv.imgproc.Imgproc;
++import org.openftc.easyopencv.OpenCvCamera;
++import org.openftc.easyopencv.OpenCvCameraFactory;
++import org.openftc.easyopencv.OpenCvPipeline;
++import org.openftc.easyopencv.OpenCvWebcam;
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -55,6 +67,7 @@
+ import static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;
+ import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
+ import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
++
+ //import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
+ //import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
+ //import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
+@@ -63,6 +76,7 @@
+ //import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
+ 
+ 
++
+ public class Goal {
+ 
+     public Goal(HardwareMap hardwareMap, ElapsedTime runtime, Central central, setupType... setup) throws InterruptedException {
+@@ -73,7 +87,7 @@
+ 
+         StringBuilder i = new StringBuilder();
+ 
+-        for (setupType type: setup) {
++        for (setupType type : setup) {
+             switch (type) {
+                 case autonomous:
+                     setupDrivetrain();
+@@ -112,6 +126,9 @@
+                 case imu:
+                     setupIMU();
+                     break;
++                case openCV:
++                    setupOpenCV();
++                    break;
+ 
+             }
+ 
+@@ -152,22 +169,24 @@
+     //----specfic non-configuration fields
+     //none rnh
+ 
++    //OpenCV setup
++    public OpenCvWebcam webcam;
+ 
+     // Vuforia Variables
+     public static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+-    public static final boolean PHONE_IS_PORTRAIT = false  ;
++    public static final boolean PHONE_IS_PORTRAIT = false;
+ 
+     public final String VUFORIA_KEY =
+             " AYzLd0v/////AAABmR035tu9m07+uuZ6k86JLR0c/MC84MmTzTQa5z2QOC45RUpRTBISgipZ2Aop4XzRFFIvrLEpsop5eEBl5yu5tJxK6jHbMppJyWH8lQbvjz4PAK+swG4ALuz2M2MdFXWl7Xh67s/XfIFSq1UJpX0DgwmZnoDCYHmx/MnFbyxvpWIMLZziaJqledMpZtmH11l1/AS0oH+mrzWQLB57w1Ur0FRdhpxcrZS9KG09u6I6vCUc8EqkHqG7T2Zm4QdnytYWpVBBu17iRNhmsd3Ok3w8Pn22blBYRo6dZZ8oscyQS1ZtilM1YT49ORQHc8mu/BMWh06LxdstWctSiGiBV0+Wn3Zk++xQ750c64lg3QLjNkXc";
+ 
+     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
+     // We will define some constants and conversions here
+-    public static final float mmPerInch        = 25.4f;
+-    public static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
++    public static final float mmPerInch = 25.4f;
++    public static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
+ 
+     // Constants for perimeter targets
+     public static final float halfField = 72 * mmPerInch;
+-    public static final float quadField  = 36 * mmPerInch;
++    public static final float quadField = 36 * mmPerInch;
+ 
+     // Class Members
+     public OpenGLMatrix lastLocation = null;
+@@ -187,7 +206,6 @@
+     public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+ 
+ 
+-
+     //----------------CONFIGURATION FIELDS--------------------
+     public DcMotor[] drivetrain;   //set in motorDriveMode() for drivetrain movement functions
+ 
+@@ -213,7 +231,7 @@
+ //    public ModernRoboticsI2cRangeSensor backSense;
+ 
+ 
+-    public double StrafetoTotalPower = 2.0/3.0;
++    public double StrafetoTotalPower = 2.0 / 3.0;
+ 
+     //----       IMU        ----
+ 
+@@ -222,7 +240,7 @@
+     public static boolean isnotstopped;
+     public float initorient;
+ 
+-    public void setupIMU() throws InterruptedException{
++    public void setupIMU() throws InterruptedException {
+         imuparameters.angleUnit = BNO055IMUImpl.AngleUnit.DEGREES;
+         imuparameters.accelUnit = BNO055IMUImpl.AccelUnit.METERS_PERSEC_PERSEC;
+         imuparameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+@@ -245,8 +263,6 @@
+     }
+ 
+ 
+-
+-
+     public void setupDrivetrain() throws InterruptedException {
+         motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+@@ -257,20 +273,20 @@
+     }
+ 
+     public void setupStorage() throws InterruptedException {
+-        whack = servo(whacker,Servo.Direction.FORWARD, 0, 1, 0);
+-        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , .97);
++        whack = servo(whacker, Servo.Direction.FORWARD, 0, 1, 0);
++        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1, .97);
+         // teleop .98
+         encoder(EncoderMode.OFF, fly);
+     }
+ 
+-    public void setupCollection() throws InterruptedException{
++    public void setupCollection() throws InterruptedException {
+         collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+ 
+         encoder(EncoderMode.ON, collection);
+ 
+     }
+ 
+-    public void setupFly() throws InterruptedException{
++    public void setupFly() throws InterruptedException {
+         fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT);
+ 
+         encoder(EncoderMode.OFF, fly);
+@@ -293,6 +309,11 @@
+         rightFront = ultrasonicSensor(rightFronts);
+     }
+ 
++    public void setupOpenCV() throws InterruptedException {
++        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
++        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
++    }
++
+ //    public void setupMapping() throws InterruptedException {
+ //
+ //        leftSense = ultrasonicSensor(leftSenseS);
+@@ -302,10 +323,10 @@
+ //        backSense = ultrasonicSensor(backSenseS);
+ //    }
+ 
+-    public void setupVuforia() throws InterruptedException{
+-        float phoneXRotate    = 0;
+-        float phoneYRotate    = 0;
+-        float phoneZRotate    = 0;
++    public void setupVuforia() throws InterruptedException {
++        float phoneXRotate = 0;
++        float phoneYRotate = 0;
++        float phoneZRotate = 0;
+ 
+         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+ 
+@@ -376,12 +397,12 @@
+                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+         frontWallTarget.setLocation(OpenGLMatrix
+                 .translation(-halfField, 0, mmTargetHeight)
+-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
++                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
+ 
+         // The tower goal targets are located a quarter field length from the ends of the back perimeter wall.
+         blueTowerGoalTarget.setLocation(OpenGLMatrix
+                 .translation(halfField, quadField, mmTargetHeight)
+-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
++                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+         redTowerGoalTarget.setLocation(OpenGLMatrix
+                 .translation(halfField, -quadField, mmTargetHeight)
+                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+@@ -409,14 +430,14 @@
+ 
+         // Rotate the phone vertical about the X axis if it's in portrait mode
+         if (PHONE_IS_PORTRAIT) {
+-            phoneXRotate = 90 ;
++            phoneXRotate = 90;
+         }
+ 
+         // Next, translate the camera lens to where it is on the robot.
+         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
++        final float CAMERA_FORWARD_DISPLACEMENT = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+         final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+-        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
++        final float CAMERA_LEFT_DISPLACEMENT = 0;     // eg: Camera is ON the robot's center line
+ 
+         robotFromCamera = OpenGLMatrix
+                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+@@ -424,8 +445,6 @@
+     }
+ 
+ 
+-
+-
+     //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------
+     public DcMotor motor(String name, DcMotor.Direction directionm, DcMotor.ZeroPowerBehavior zeroPowerBehavior) throws InterruptedException {
+         DcMotor motor = hardwareMap.dcMotor.get(name);
+@@ -442,6 +461,7 @@
+         servo.setPosition(start);
+         return servo;
+     }
++
+     public CRServo servo(String name, DcMotorSimple.Direction direction, double startSpeed) throws InterruptedException {
+         CRServo servo = hardwareMap.crservo.get(name);
+         servo.setDirection(direction);
+@@ -449,6 +469,7 @@
+         servo.setPower(startSpeed);
+         return servo;
+     }
++
+     public ColorSensor colorSensor(String name, boolean ledOn) throws InterruptedException {
+         ColorSensor sensor = hardwareMap.colorSensor.get(name);
+         sensor.enableLed(ledOn);
+@@ -458,20 +479,22 @@
+ 
+         return sensor;
+     }
++
+     public ModernRoboticsI2cRangeSensor ultrasonicSensor(String name) throws InterruptedException {
+ 
+         return hardwareMap.get(ModernRoboticsI2cRangeSensor.class, name);
+     }
++
+     public Rev2mDistanceSensor therealUS(String name) throws InterruptedException {
+         return hardwareMap.get(Rev2mDistanceSensor.class, name);
+     }
+ 
+-    public ModernRoboticsI2cColorSensor MRColor(String name) throws InterruptedException{
++    public ModernRoboticsI2cColorSensor MRColor(String name) throws InterruptedException {
+         return hardwareMap.get(ModernRoboticsI2cColorSensor.class, name);
+ 
+     }
+ 
+-    public  ModernRoboticsAnalogOpticalDistanceSensor realUS(String name) throws InterruptedException {
++    public ModernRoboticsAnalogOpticalDistanceSensor realUS(String name) throws InterruptedException {
+         return hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, name);
+     }
+ 
+@@ -512,7 +535,7 @@
+ 
+     }
+ 
+-    public void driveTrainEncoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement) throws  InterruptedException{
++    public void driveTrainEncoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement) throws InterruptedException {
+ 
+         int[] targets = new int[drivetrain.length];
+         double[] signs = movement.getDirections();
+@@ -522,20 +545,20 @@
+             // Determine new target position, and pass to motor controller
+ 
+ 
+-            for (DcMotor motor : drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 int x = Arrays.asList(drivetrain).indexOf(motor);
+                 targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);
+             }
+-            for (DcMotor motor: drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 int x = Arrays.asList(drivetrain).indexOf(motor);
+                 motor.setTargetPosition(targets[x]);
+             }
+-            for (DcMotor motor: drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+             }
+             runtime.reset();
+ 
+-            for (DcMotor motor:drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 motor.setPower(Math.abs(speed));
+             }
+ 
+@@ -558,12 +581,12 @@
+             }
+ 
+             // Stop all motion;
+-            for (DcMotor motor: drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 motor.setPower(0);
+             }
+ 
+             // Turn off RUN_TO_POSITION
+-            for (DcMotor motor: drivetrain){
++            for (DcMotor motor : drivetrain) {
+                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+             }
+             central.sleep(waitAfter);
+@@ -572,7 +595,7 @@
+         }
+     }
+ 
+-    public void encoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws  InterruptedException{
++    public void encoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
+ 
+         int[] targets = new int[motors.length];
+         double[] signs = movement.getDirections();
+@@ -581,20 +604,20 @@
+         if (central.opModeIsActive()) {
+             // Determine new target position, and pass to motor controller
+ 
+-            for (DcMotor motor : motors){
++            for (DcMotor motor : motors) {
+                 int x = Arrays.asList(motors).indexOf(motor);
+                 targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);
+             }
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 int x = Arrays.asList(motors).indexOf(motor);
+                 motor.setTargetPosition(targets[x]);
+             }
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+             }
+             runtime.reset();
+ 
+-            for (DcMotor motor:motors){
++            for (DcMotor motor : motors) {
+                 motor.setPower(Math.abs(speed));
+             }
+ 
+@@ -607,20 +630,20 @@
+                 // Display it for the driver.
+                 // Allow time for other processes to run.
+                 central.idle();
+-                for (DcMotor motor: motors){
+-                    if (!motor.isBusy()){
+-                        x =false;
++                for (DcMotor motor : motors) {
++                    if (!motor.isBusy()) {
++                        x = false;
+                     }
+                 }
+             }
+ 
+             // Stop all motion;
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setPower(0);
+             }
+ 
+             // Turn off RUN_TO_POSITION
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+             }
+             central.sleep(waitAfter);
+@@ -628,7 +651,8 @@
+ 
+         }
+     }
+-    public void encodeCoreHexMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws  InterruptedException{
++
++    public void encodeCoreHexMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
+ 
+         int[] targets = new int[motors.length];
+         double[] signs = movement.getDirections();
+@@ -637,20 +661,20 @@
+         if (central.opModeIsActive()) {
+             // Determine new target position, and pass to motor controller
+ 
+-            for (DcMotor motor : motors){
++            for (DcMotor motor : motors) {
+                 int x = Arrays.asList(motors).indexOf(motor);
+                 targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_COREHEXMOTOR_INCH);
+             }
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 int x = Arrays.asList(motors).indexOf(motor);
+                 motor.setTargetPosition(targets[x]);
+             }
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+             }
+             runtime.reset();
+ 
+-            for (DcMotor motor:motors){
++            for (DcMotor motor : motors) {
+                 motor.setPower(Math.abs(speed));
+             }
+ 
+@@ -663,20 +687,20 @@
+                 // Display it for the driver.
+                 // Allow time for other processes to run.
+                 central.idle();
+-                for (DcMotor motor: motors){
+-                    if (!motor.isBusy()){
+-                        x =false;
++                for (DcMotor motor : motors) {
++                    if (!motor.isBusy()) {
++                        x = false;
+                     }
+                 }
+             }
+ 
+             // Stop all motion;
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setPower(0);
+             }
+ 
+             // Turn off RUN_TO_POSITION
+-            for (DcMotor motor: motors){
++            for (DcMotor motor : motors) {
+                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+             }
+             central.sleep(waitAfter);
+@@ -686,25 +710,27 @@
+     }
+ 
+     //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------
+-    public void driveTrainMovement(double speed, movements movement) throws InterruptedException{
++    public void driveTrainMovement(double speed, movements movement) throws InterruptedException {
+         double[] signs = movement.getDirections();
+-        for (DcMotor motor: drivetrain){
++        for (DcMotor motor : drivetrain) {
+             int x = Arrays.asList(drivetrain).indexOf(motor);
+-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
++            motor.setPower(signs[x] * wheelAdjust[x] * speed);
+ 
+         }
+     }
+-    public void driveTrainMovement(double... speed) throws InterruptedException{
++
++    public void driveTrainMovement(double... speed) throws InterruptedException {
+ 
+         for (int i = 0; i < drivetrain.length; i++) {
+             drivetrain[i].setPower(speed[i]);
+         }
+     }
+-    public void driveTrainTimeMovement(double speed, movements movement, long duration, long waitAfter) throws InterruptedException{
++
++    public void driveTrainTimeMovement(double speed, movements movement, long duration, long waitAfter) throws InterruptedException {
+         double[] signs = movement.getDirections();
+-        for (DcMotor motor: drivetrain){
++        for (DcMotor motor : drivetrain) {
+             int x = Arrays.asList(drivetrain).indexOf(motor);
+-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
++            motor.setPower(signs[x] * wheelAdjust[x] * speed);
+ 
+         }
+         central.sleep(duration);
+@@ -712,29 +738,31 @@
+         central.sleep(waitAfter);
+     }
+ 
+-    public void anyMovement(double speed, movements movement, DcMotor... motors) throws InterruptedException{
++    public void anyMovement(double speed, movements movement, DcMotor... motors) throws InterruptedException {
+         double[] signs = movement.getDirections();
+-        for (DcMotor motor: motors){
++        for (DcMotor motor : motors) {
+             int x = Arrays.asList(motors).indexOf(motor);
+-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
++            motor.setPower(signs[x] * wheelAdjust[x] * speed);
+ 
+         }
+     }
+-    public void anyMovementTime(double speed, movements movement, long duration, DcMotor... motors) throws InterruptedException{
++
++    public void anyMovementTime(double speed, movements movement, long duration, DcMotor... motors) throws InterruptedException {
+         double[] signs = movement.getDirections();
+-        for (DcMotor motor: motors){
++        for (DcMotor motor : motors) {
+             int x = Arrays.asList(motors).indexOf(motor);
+-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
++            motor.setPower(signs[x] * wheelAdjust[x] * speed);
+ 
+         }
+         central.sleep(duration);
+-        for (DcMotor motor: motors){
++        for (DcMotor motor : motors) {
+             motor.setPower(0);
+ 
+         }
+     }
+-    public void stopDrivetrain() throws InterruptedException{
+-        for (DcMotor motor: drivetrain){
++
++    public void stopDrivetrain() throws InterruptedException {
++        for (DcMotor motor : drivetrain) {
+             motor.setPower(0);
+         }
+     }
+@@ -750,7 +778,7 @@
+     }
+ 
+     // IMU Movements
+-    public void turn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{
++    public void turn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException {
+ 
+         central.telemetry.addData("IMU State: ", imu.getSystemStatus());
+         central.telemetry.update();
+@@ -776,7 +804,7 @@
+             isnotstopped = false;
+         }
+ 
+-        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {
++        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive()) {
+             central.telemetry.addLine("First Try ");
+             central.telemetry.addData("IMU Inital: ", start);
+             central.telemetry.addData("IMU Final Projection: ", end);
+@@ -811,7 +839,8 @@
+         central.telemetry.update();
+         central.sleep(5000);
+     }
+-    public void absturn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{
++
++    public void absturn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException {
+ 
+         central.telemetry.addData("IMU State: ", imu.getSystemStatus());
+         central.telemetry.update();
+@@ -837,7 +866,7 @@
+             isnotstopped = false;
+         }
+ 
+-        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {
++        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive()) {
+             central.telemetry.addLine("First Try ");
+             central.telemetry.addData("IMU Inital: ", start);
+             central.telemetry.addData("IMU Final Projection: ", end);
+@@ -850,7 +879,7 @@
+         } catch (InterruptedException e) {
+         }
+ 
+-        while (calculateDifferenceBetweenAngles(end, getDirection()) > 1 && central.opModeIsActive()){
++        while (calculateDifferenceBetweenAngles(end, getDirection()) > 1 && central.opModeIsActive()) {
+             driveTrainMovement(0.05, (direction == turnside.cw) ? movements.ccw : movements.cw);
+             central.telemetry.addLine("Correctional Try ");
+             central.telemetry.addData("IMU Inital: ", start);
+@@ -876,34 +905,35 @@
+         return -difference;
+     }
+ 
+-    public double getDirection(){
+-        return (this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle-initorient+720)%360;
++    public double getDirection() {
++        return (this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - initorient + 720) % 360;
+     }
+ 
+ 
+-    public enum EncoderMode{
++    public enum EncoderMode {
+         ON, OFF;
+     }
+-    public enum setupType{
+-        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra, imu;
++
++    public enum setupType {
++        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra, imu, openCV;
+     }
+-
+ 
+ 
+     //-------------------SET FUNCTIONS--------------------------------
+     public void setCentral(Central central) {
+         this.central = central;
+     }
++
+     public void setHardwareMap(HardwareMap hardwareMap) {
+         this.hardwareMap = hardwareMap;
+     }
++
+     public void setRuntime(ElapsedTime runtime) {
+         this.runtime = runtime;
+     }
+ 
+     //-------------------CHOICE ENUMS-------------------------
+-    public enum movements
+-    {
++    public enum movements {
+         // FR FL BR BL
+         left(1, 1, -1, -1),
+         right(-1, -1, 1, 1),
+@@ -925,7 +955,6 @@
+         clawIn(1);
+ 
+ 
+-
+         private final double[] directions;
+ 
+         movements(double... signs) {
+@@ -943,44 +972,44 @@
+     }
+ 
+     public static double[] anyDirection(double speed, double angleDegrees) {
+-    double theta = Math.toRadians(angleDegrees);
+-    double beta = Math.atan(yToXRatio);
++        double theta = Math.toRadians(angleDegrees);
++        double beta = Math.atan(yToXRatio);
+ 
+-    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+-    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
++        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
++        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+ 
+-    double[] retval = {v1, v2};
+-    return retval;
++        double[] retval = {v1, v2};
++        return retval;
+     }
+ 
+     public static double[] anyDirectionRadians(double speed, double angleRadians) {
+-    double theta = angleRadians;
+-    double beta = Math.atan(yToXRatio);
++        double theta = angleRadians;
++        double beta = Math.atan(yToXRatio);
+ 
+-    double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
+-    double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
++        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
++        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+ 
+-    double[] retval = {v1, v2};
+-    return retval;
++        double[] retval = {v1, v2};
++        return retval;
+     }
+ 
+     public void driveTrainMovementAngle(double speed, double angle) {
+ 
+-    double[] speeds = anyDirection(speed, angle);
+-    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+-    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+-    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+-    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
++        double[] speeds = anyDirection(speed, angle);
++        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
++        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
++        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
++        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+ 
+     }
+ 
+     public void driveTrainMovementAngleRadians(double speed, double angle) {
+ 
+-    double[] speeds = anyDirectionRadians(speed, angle);
+-    motorFR.setPower(movements.forward.directions[0] * speeds[0]);
+-    motorFL.setPower(movements.forward.directions[1] * speeds[1]);
+-    motorBR.setPower(movements.forward.directions[2] * speeds[1]);
+-    motorBL.setPower(movements.forward.directions[3] * speeds[0]);
++        double[] speeds = anyDirectionRadians(speed, angle);
++        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
++        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
++        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
++        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+ 
+     }
+ 
+@@ -988,5 +1017,4 @@
+         front, center, back
+     }
+ 
+-
+ }
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/EasyOpenCV.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2020 OpenFTC Team\n *\n * Permission is hereby granted, free of charge, to any person obtaining a copy\n * of this software and associated documentation files (the \"Software\"), to deal\n * in the Software without restriction, including without limitation the rights\n * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n * copies of the Software, and to permit persons to whom the Software is\n * furnished to do so, subject to the following conditions:\n *\n * The above copyright notice and this permission notice shall be included in all\n * copies or substantial portions of the Software.\n * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n * SOFTWARE.\n */\n\npackage org.firstinspires.ftc.teamcode.Autonomous;\n\nimport com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;\nimport com.qualcomm.robotcore.eventloop.opmode.TeleOp;\n\nimport org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;\nimport org.opencv.core.Core;\nimport org.opencv.core.Mat;\nimport org.opencv.core.Point;\nimport org.opencv.core.Rect;\nimport org.opencv.core.Scalar;\nimport org.opencv.imgproc.Imgproc;\nimport org.openftc.easyopencv.OpenCvCamera;\nimport org.openftc.easyopencv.OpenCvCameraFactory;\nimport org.openftc.easyopencv.OpenCvCameraRotation;\nimport org.openftc.easyopencv.OpenCvInternalCamera;\nimport org.openftc.easyopencv.OpenCvPipeline;\nimport org.openftc.easyopencv.OpenCvWebcam;\n\n@TeleOp\npublic class EasyOpenCV extends LinearOpMode\n{\n    OpenCvInternalCamera phoneCam;\n    SkystoneDeterminationPipeline pipeline;\n    OpenCvWebcam webcam;\n\n    @Override\n    public void runOpMode()\n    {\n\n        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(\"cameraMonitorViewId\", \"id\", hardwareMap.appContext.getPackageName());\n        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, \"Webcam 1\"), cameraMonitorViewId);\n        pipeline = new SkystoneDeterminationPipeline();\n        phoneCam.setPipeline(pipeline);\n\n        // We set the viewport policy to optimized view so the preview doesn't appear 90 deg\n        // out when the RC activity is in portrait. We do our actual image processing assuming\n        // landscape orientation, though.\n        phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);\n\n        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()\n        {\n            @Override\n            public void onOpened()\n            {\n                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);\n            }\n        }\n        );\n\n        waitForStart();\n\n        while (opModeIsActive())\n        {\n            telemetry.addData(\"Analysis\", pipeline.getAnalysis());\n            telemetry.addData(\"Position\", pipeline.position);\n            telemetry.update();\n\n            // Don't burn CPU cycles busy-looping in this sample\n            sleep(50);\n        }\n    }\n\n    public static class SkystoneDeterminationPipeline extends OpenCvPipeline\n    {\n        /*\n         * An enum to define the skystone position\n         */\n        public enum RingPosition\n        {\n            FOUR,\n            ONE,\n            NONE\n        }\n\n        /*\n         * Some color constants\n         */\n        static final Scalar BLUE = new Scalar(0, 0, 255);\n        static final Scalar GREEN = new Scalar(0, 255, 0);\n\n        /*\n         * The core values which define the location and size of the sample regions\n         */\n        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(181,98);\n\n        static final int REGION_WIDTH = 35;\n        static final int REGION_HEIGHT = 25;\n\n        final int FOUR_RING_THRESHOLD = 150;\n        final int ONE_RING_THRESHOLD = 135;\n\n        Point region1_pointA = new Point(\n                REGION1_TOPLEFT_ANCHOR_POINT.x,\n                REGION1_TOPLEFT_ANCHOR_POINT.y);\n        Point region1_pointB = new Point(\n                REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,\n                REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);\n\n        /*\n         * Working variables\n         */\n        Mat region1_Cb;\n        Mat YCrCb = new Mat();\n        Mat Cb = new Mat();\n        int avg1;\n\n        // Volatile since accessed by OpMode thread w/o synchronization\n        private volatile RingPosition position = RingPosition.FOUR;\n\n        /*\n         * This function takes the RGB frame, converts to YCrCb,\n         * and extracts the Cb channel to the 'Cb' variable\n         */\n        void inputToCb(Mat input)\n        {\n            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);\n            Core.extractChannel(YCrCb, Cb, 1);\n        }\n\n        @Override\n        public void init(Mat firstFrame)\n        {\n            inputToCb(firstFrame);\n\n            region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));\n        }\n\n        @Override\n        public Mat processFrame(Mat input)\n        {\n            inputToCb(input);\n\n            avg1 = (int) Core.mean(region1_Cb).val[0];\n\n            Imgproc.rectangle(\n                    input, // Buffer to draw on\n                    region1_pointA, // First point which defines the rectangle\n                    region1_pointB, // Second point which defines the rectangle\n                    BLUE, // The color the rectangle is drawn in\n                    2); // Thickness of the rectangle lines\n\n            position = RingPosition.FOUR; // Record our analysis\n            if(avg1 > FOUR_RING_THRESHOLD){\n                position = RingPosition.FOUR;\n            }else if (avg1 > ONE_RING_THRESHOLD){\n                position = RingPosition.ONE;\n            }else{\n                position = RingPosition.NONE;\n            }\n\n            Imgproc.rectangle(\n                    input, // Buffer to draw on\n                    region1_pointA, // First point which defines the rectangle\n                    region1_pointB, // Second point which defines the rectangle\n                    GREEN, // The color the rectangle is drawn in\n                    -1); // Negative thickness means solid fill\n\n            return input;\n        }\n\n        public int getAnalysis()\n        {\n            return avg1;\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/EasyOpenCV.java	(revision 11c4ca9636fc08822182c0302f9e1e0dcc90f6a4)
++++ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/EasyOpenCV.java	(date 1613433565000)
+@@ -1,3 +1,4 @@
++
+ /*
+  * Copyright (c) 2020 OpenFTC Team
+  *
+@@ -21,10 +22,12 @@
+ 
+ package org.firstinspires.ftc.teamcode.Autonomous;
+ 
+-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
++import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
++import com.vuforia.EyewearDevice;
+ 
+ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
++import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
++import org.firstinspires.ftc.teamcode.Control.Goal;
+ import org.opencv.core.Core;
+ import org.opencv.core.Mat;
+ import org.opencv.core.Point;
+@@ -38,47 +41,60 @@
+ import org.openftc.easyopencv.OpenCvPipeline;
+ import org.openftc.easyopencv.OpenCvWebcam;
+ 
+-@TeleOp
+-public class EasyOpenCV extends LinearOpMode
++@Autonomous(name="TTTT Open CV", group = "basic")
++public class EasyOpenCV extends AutonomousControl
+ {
+-    OpenCvInternalCamera phoneCam;
+     SkystoneDeterminationPipeline pipeline;
+-    OpenCvWebcam webcam;
++
+ 
+     @Override
+-    public void runOpMode()
++    public void runOpMode() throws InterruptedException
+     {
++        setup(runtime, Goal.setupType.openCV);
++        telemetry.addLine("Start!");
++        telemetry.update();
+ 
+-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+         pipeline = new SkystoneDeterminationPipeline();
+-        phoneCam.setPipeline(pipeline);
++        rob.webcam.setPipeline(pipeline);
+ 
+         // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
+         // out when the RC activity is in portrait. We do our actual image processing assuming
+         // landscape orientation, though.
+-        phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+ 
+-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
++        rob.webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+         {
+             @Override
+             public void onOpened()
+             {
+-                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
++                rob.webcam.startStreaming(320,240);
+             }
+-        }
+-        );
++        });
++
++        double currTime = runtime.milliseconds();
+ 
+         waitForStart();
+ 
+-        while (opModeIsActive())
++        if (opModeIsActive())
+         {
+-            telemetry.addData("Analysis", pipeline.getAnalysis());
+-            telemetry.addData("Position", pipeline.position);
+-            telemetry.update();
++            rob.driveTrainEncoderMovement(0.5, 10, 4, 0, Goal.movements.forward);
++
++            while(runtime.milliseconds() - currTime < 5000) {
++                telemetry.addData("Analysis", pipeline.getAnalysis());
++                telemetry.addData("Position", pipeline.position);
++                telemetry.addData("Value", pipeline.value);
++                telemetry.update();
+ 
+-            // Don't burn CPU cycles busy-looping in this sample
+-            sleep(50);
++                // Don't burn CPU cycles busy-looping in this sample
++                sleep(50);
++            }
++            if (pipeline.value == 4){
++
++            }else if(pipeline.value == 1){
++
++            }else{
++
++            }
++
+         }
+     }
+ 
+@@ -94,6 +110,7 @@
+             NONE
+         }
+ 
++        public int value = 0;
+         /*
+          * Some color constants
+          */
+@@ -103,12 +120,12 @@
+         /*
+          * The core values which define the location and size of the sample regions
+          */
+-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(181,98);
++        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,98);
+ 
+-        static final int REGION_WIDTH = 35;
+-        static final int REGION_HEIGHT = 25;
++        static final int REGION_WIDTH = 100;
++        static final int REGION_HEIGHT = 100;
+ 
+-        final int FOUR_RING_THRESHOLD = 150;
++        final int FOUR_RING_THRESHOLD = 147;
+         final int ONE_RING_THRESHOLD = 135;
+ 
+         Point region1_pointA = new Point(
+@@ -127,7 +144,7 @@
+         int avg1;
+ 
+         // Volatile since accessed by OpMode thread w/o synchronization
+-        private volatile RingPosition position = RingPosition.FOUR;
++        public volatile RingPosition position = RingPosition.FOUR;
+ 
+         /*
+          * This function takes the RGB frame, converts to YCrCb,
+@@ -164,10 +181,13 @@
+             position = RingPosition.FOUR; // Record our analysis
+             if(avg1 > FOUR_RING_THRESHOLD){
+                 position = RingPosition.FOUR;
++                value = 4;
+             }else if (avg1 > ONE_RING_THRESHOLD){
+                 position = RingPosition.ONE;
++                value = 1;
+             }else{
+                 position = RingPosition.NONE;
++                value = 0;
+             }
+ 
+             Imgproc.rectangle(
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/AutonomousControl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.Control;\n\npublic abstract class AutonomousControl extends Central {\n\n\n\n    }\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/AutonomousControl.java	(revision 11c4ca9636fc08822182c0302f9e1e0dcc90f6a4)
++++ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Control/AutonomousControl.java	(date 1613090917000)
+@@ -1,7 +1,24 @@
+ package org.firstinspires.ftc.teamcode.Control;
+ 
++import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
++import org.firstinspires.ftc.teamcode.Autonomous.OpenCV;
++import org.opencv.core.Core;
++import org.opencv.core.Mat;
++import org.opencv.core.Point;
++import org.opencv.core.Rect;
++import org.opencv.core.Scalar;
++import org.opencv.imgproc.Imgproc;
++import org.openftc.easyopencv.OpenCvCamera;
++import org.openftc.easyopencv.OpenCvCameraFactory;
++import org.openftc.easyopencv.OpenCvPipeline;
++import org.openftc.easyopencv.OpenCvWebcam;
++
+ public abstract class AutonomousControl extends Central {
+ 
++}
+ 
+ 
+-    }
++
++
++
++
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/EasyOpenCVExample.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2020 OpenFTC Team\n *\n * Permission is hereby granted, free of charge, to any person obtaining a copy\n * of this software and associated documentation files (the \"Software\"), to deal\n * in the Software without restriction, including without limitation the rights\n * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n * copies of the Software, and to permit persons to whom the Software is\n * furnished to do so, subject to the following conditions:\n *\n * The above copyright notice and this permission notice shall be included in all\n * copies or substantial portions of the Software.\n * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n * SOFTWARE.\n */\n\npackage org.firstinspires.ftc.teamcode.Autonomous;\n\nimport com.qualcomm.robotcore.eventloop.opmode.Autonomous;\n\nimport org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;\nimport org.firstinspires.ftc.teamcode.Control.AutonomousControl;\nimport org.opencv.core.Core;\nimport org.opencv.core.Mat;\nimport org.opencv.core.Point;\nimport org.opencv.core.Rect;\nimport org.opencv.core.Scalar;\nimport org.opencv.imgproc.Imgproc;\nimport org.openftc.easyopencv.OpenCvCamera;\nimport org.openftc.easyopencv.OpenCvCameraFactory;\nimport org.openftc.easyopencv.OpenCvCameraRotation;\nimport org.openftc.easyopencv.OpenCvInternalCamera;\nimport org.openftc.easyopencv.OpenCvPipeline;\nimport org.openftc.easyopencv.OpenCvWebcam;\n\n@Autonomous\npublic class EasyOpenCVExample extends AutonomousControl\n{\n    SkystoneDeterminationPipeline pipeline;\n    OpenCvWebcam webcam;\n\n    @Override\n    public void runOpMode()\n    {\n\n        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(\"cameraMonitorViewId\", \"id\", hardwareMap.appContext.getPackageName());\n        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, \"Webcam 1\"), cameraMonitorViewId);\n        pipeline = new SkystoneDeterminationPipeline();\n        webcam.setPipeline(pipeline);\n\n        // We set the viewport policy to optimized view so the preview doesn't appear 90 deg\n        // out when the RC activity is in portrait. We do our actual image processing assuming\n        // landscape orientation, though.\n        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);\n\n        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()\n        {\n            @Override\n            public void onOpened()\n            {\n                webcam.startStreaming(320,240);\n            }\n        });\n\n        waitForStart();\n\n        while (opModeIsActive())\n        {\n            telemetry.addData(\"Analysis\", pipeline.getAnalysis());\n            telemetry.addData(\"Position\", pipeline.position);\n            telemetry.update();\n\n            // Don't burn CPU cycles busy-looping in this sample\n            sleep(50);\n        }\n    }\n\n    public static class SkystoneDeterminationPipeline extends OpenCvPipeline\n    {\n        /*\n         * An enum to define the skystone position\n         */\n        public enum RingPosition\n        {\n            FOUR,\n            ONE,\n            NONE\n        }\n\n        /*\n         * Some color constants\n         */\n        static final Scalar BLUE = new Scalar(0, 0, 255);\n        static final Scalar GREEN = new Scalar(0, 255, 0);\n\n        /*\n         * The core values which define the location and size of the sample regions\n         */\n        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,98);\n\n        static final int REGION_WIDTH = 100;\n        static final int REGION_HEIGHT = 100;\n\n        final int FOUR_RING_THRESHOLD = 150;\n        final int ONE_RING_THRESHOLD = 135;\n\n        Point region1_pointA = new Point(\n                REGION1_TOPLEFT_ANCHOR_POINT.x,\n                REGION1_TOPLEFT_ANCHOR_POINT.y);\n        Point region1_pointB = new Point(\n                REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,\n                REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);\n\n        /*\n         * Working variables\n         */\n        Mat region1_Cb;\n        Mat YCrCb = new Mat();\n        Mat Cb = new Mat();\n        int avg1;\n\n        // Volatile since accessed by OpMode thread w/o synchronization\n        private volatile RingPosition position = RingPosition.FOUR;\n\n        /*\n         * This function takes the RGB frame, converts to YCrCb,\n         * and extracts the Cb channel to the 'Cb' variable\n         */\n        void inputToCb(Mat input)\n        {\n            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);\n            Core.extractChannel(YCrCb, Cb, 1);\n        }\n\n        @Override\n        public void init(Mat firstFrame)\n        {\n            inputToCb(firstFrame);\n\n            region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));\n        }\n\n        @Override\n        public Mat processFrame(Mat input)\n        {\n            inputToCb(input);\n\n            avg1 = (int) Core.mean(region1_Cb).val[0];\n\n            Imgproc.rectangle(\n                    input, // Buffer to draw on\n                    region1_pointA, // First point which defines the rectangle\n                    region1_pointB, // Second point which defines the rectangle\n                    BLUE, // The color the rectangle is drawn in\n                    2); // Thickness of the rectangle lines\n\n            position = RingPosition.FOUR; // Record our analysis\n            if(avg1 > FOUR_RING_THRESHOLD){\n                position = RingPosition.FOUR;\n            }else if (avg1 > ONE_RING_THRESHOLD){\n                position = RingPosition.ONE;\n            }else{\n                position = RingPosition.NONE;\n            }\n\n            Imgproc.rectangle(\n                    input, // Buffer to draw on\n                    region1_pointA, // First point which defines the rectangle\n                    region1_pointB, // Second point which defines the rectangle\n                    GREEN, // The color the rectangle is drawn in\n                    -1); // Negative thickness means solid fill\n\n            return input;\n        }\n\n        public int getAnalysis()\n        {\n            return avg1;\n        }\n    }\n}
+===================================================================
+--- TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/EasyOpenCVExample.java	(revision 11c4ca9636fc08822182c0302f9e1e0dcc90f6a4)
++++ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/OpenCV.java	(date 1613090916000)
+@@ -22,6 +22,7 @@
+ package org.firstinspires.ftc.teamcode.Autonomous;
+ 
+ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
++import com.vuforia.EyewearDevice;
+ 
+ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+ import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
+@@ -38,14 +39,14 @@
+ import org.openftc.easyopencv.OpenCvPipeline;
+ import org.openftc.easyopencv.OpenCvWebcam;
+ 
+-@Autonomous
+-public class EasyOpenCVExample extends AutonomousControl
++@Autonomous(name="Open CV", group = "basic")
++public class OpenCV extends AutonomousControl
+ {
+     SkystoneDeterminationPipeline pipeline;
+     OpenCvWebcam webcam;
+ 
+     @Override
+-    public void runOpMode()
++    public void runOpMode() throws InterruptedException
+     {
+ 
+         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+@@ -106,7 +107,7 @@
+         static final int REGION_WIDTH = 100;
+         static final int REGION_HEIGHT = 100;
+ 
+-        final int FOUR_RING_THRESHOLD = 150;
++        final int FOUR_RING_THRESHOLD = 147;
+         final int ONE_RING_THRESHOLD = 135;
+ 
+         Point region1_pointA = new Point(
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/**\n * Top-level build file for ftc_app project.\n *\n * It is extraordinarily rare that you will ever need to edit this file.\n */\nbuildscript {\n    repositories {\n        google()\n        jcenter()\n    }\n    dependencies {\n        classpath 'com.android.tools.build:gradle:4.1.1'\n    }\n}\n\n// This is now required because aapt2 has to be downloaded from the\n// google() repository beginning with version 3.2 of the Android Gradle Plugin\nallprojects {\n    repositories {\n        google()\n        jcenter()\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- build.gradle	(revision 11c4ca9636fc08822182c0302f9e1e0dcc90f6a4)
++++ build.gradle	(date 1613431703000)
+@@ -9,7 +9,7 @@
+         jcenter()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:4.1.1'
++        classpath 'com.android.tools.build:gradle:4.1.2'
+     }
+ }
+ 
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/TestOpenCV.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/TestOpenCV.java	(date 1613095480000)
++++ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autonomous/TestOpenCV.java	(date 1613095480000)
+@@ -0,0 +1,20 @@
++package org.firstinspires.ftc.teamcode.Autonomous;
++//hi
++import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
++
++import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
++import org.firstinspires.ftc.teamcode.Control.Goal;
++
++@Autonomous(name="Test Open CV", group = "basic")
++public class TestOpenCV extends AutonomousControl {
++
++    public void runOpMode() throws InterruptedException {
++
++        setup(runtime, Goal.setupType.openCV);
++        telemetry.addLine("Start!");
++        telemetry.update();
++
++        EasyOpenCV thing = new EasyOpenCV();
++
++    }
++}
+\ No newline at end of file

@@ -46,7 +46,7 @@ public class EasyOpenCV extends AutonomousControl
 {
     SkystoneDeterminationPipeline pipeline;
 
-
+//hi
     @Override
     public void runOpMode() throws InterruptedException
     {
@@ -69,7 +69,7 @@ public class EasyOpenCV extends AutonomousControl
                 rob.webcam.startStreaming(320,240);
             }
         });
-
+//
         double currTime = runtime.milliseconds();
 
         waitForStart();
