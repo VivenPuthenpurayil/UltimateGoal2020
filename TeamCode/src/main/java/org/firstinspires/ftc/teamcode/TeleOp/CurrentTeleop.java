@@ -13,6 +13,8 @@ public class CurrentTeleop extends TeleOpControl {
     public static final double rotationSpeed = 0.4;
     public static boolean flywheelon = false;
 
+
+
     @Override
     public void runOpMode() throws InterruptedException {
         boolean yToggle = false;
@@ -28,8 +30,9 @@ public class CurrentTeleop extends TeleOpControl {
         while (opModeIsActive()){
             double distanceBack = rob.rightBack.getDistance(DistanceUnit.CM);
             double distanceFront = rob.rightFront.getDistance(DistanceUnit.CM);
-            telemetry.addData("back", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
-            telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
+            //telemetry.addData("back", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
+            //telemetry.addData("angle", "%.2f",(Math.atan((distanceFront-distanceBack)/6.6142)*180)/(3.1415));
+            telemetry.addData("front", "%.2f cm", rob.rightFront.getDistance(DistanceUnit.CM));
             telemetry.update();
             standardGamepadData();
 
@@ -177,7 +180,7 @@ public class CurrentTeleop extends TeleOpControl {
                         break;
                     }
                 }
-                rob.fly.setPower(0);
+//                rob.fly.setPower(0);
                 rob.lifter.setPosition(.98);
                 sleep(200);
             }
@@ -196,41 +199,57 @@ public class CurrentTeleop extends TeleOpControl {
                 rob.collection.setPower(0);
             }
 
+            if (gamepad1.x) {
+                angle = (Math.atan((distanceFront - distanceBack) / 6.6142) * 180) / (3.1415);
+                rob.driveTrainEncoderMovement(.5, 12.75 / 90 * angle, 10, 10, Goal.movements.ccw);
+            }
+
             if (move_to_pos) {
                 if (distanceBack > 1000 || distanceFront > 1000) {
                     continue;
                 }
-
                 angle = (Math.atan((distanceFront - distanceBack) / 6.6142) * 180) / (3.1415);
-                rob.driveTrainEncoderMovement(.5, 12.75 / 90 * angle, 10, 10, Goal.movements.ccw);
+                rob.turn((float) (Math.abs(angle)), Goal.turnside.ccw, 0.5, Goal.axis.center);
 
-                while (true) {
-                    if (rob.Back.getDistance((DistanceUnit.CM)) > 1000){
-                        continue;
-                    }
-                    if (rob.Back.getDistance((DistanceUnit.CM)) < 145){
-                        rob.driveTrainMovement(0.5, Goal.movements.forward);
-                    }
-                    else break;
+                while (rob.Back.getDistance((DistanceUnit.CM))< 156){
+                    rob.driveTrainMovement(.5, Goal.movements.forward);
                 }
 
+                int error_dist = 5;
+                while (rob.rightFront.getDistance((DistanceUnit.CM)) < 45 - error_dist  || rob.rightFront.getDistance((DistanceUnit.CM)) > 45 + error_dist) {
+
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) > 1000){
+                        continue;
+                    }
+
+                    telemetry.addData("front", "%.2f cm", rob.rightFront.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) < 45 + error_dist){
+                        rob.driveTrainMovement(0.3, Goal.movements.left);
+                    }
+                    if (rob.rightFront.getDistance((DistanceUnit.CM)) > 45 - error_dist){
+                        rob.driveTrainMovement(0.3, Goal.movements.right);
+                    }
+                }
                 move_to_pos = false;
             }
 
-            /*
-                if(gamepad2.dpad_up){
-                    rob.rightLinear.setPower(1);
-                }
-                else if (gamepad2.dpad_down){
-                    rob.rightLinear.setPower(-0.5);
-                }
-                else {
-                    rob.rightLinear.setPower(0);
-                }
 
-            */
+    /*
+        if(gamepad2.dpad_up){
+            rob.rightLinear.setPower(1);
+        }
+        else if (gamepad2.dpad_down){
+            rob.rightLinear.setPower(-0.5);
+        }
+        else {
+            rob.rightLinear.setPower(0);
+        }
 
-            //check point`
+  */
+
+//check point
 
         }
     }
@@ -308,5 +327,3 @@ public class CurrentTeleop extends TeleOpControl {
                 sleep(500);
             }
  */
-
-

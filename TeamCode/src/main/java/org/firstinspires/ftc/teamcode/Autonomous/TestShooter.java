@@ -21,7 +21,17 @@ public class TestShooter extends AutonomousControl {
             rob.lifter.setPosition(.84);
             rob.whack.setPosition(.3);
             //sleep(5000);
-            sleep(30000);
+            sleep(5000);
+            for(int i = 0; i<=2; i++) {
+                rob.fly.setPower(-0.73);
+                sleep(200);
+                //200
+                rob.whack.setPosition(0.62);
+                sleep(1000);
+                //1000 each
+                rob.whack.setPosition(0);
+                sleep(1000);
+            }
         }
 
 

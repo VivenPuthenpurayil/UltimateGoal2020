@@ -28,7 +28,8 @@ public class TestUSsensor extends AutonomousControl {
             //  rob.driveTrainMovement(0.5, Goal.movements.cw);
             // }
             //telemetry.addLine("moving");
-            //telemetry.addData("right front cm", "%.2f cm", rob.rightfrontSense.getDistance(DistanceUnit.CM));
+            telemetry.addData("back cm", "%.2f cm", rob.Back.getDistance(DistanceUnit.CM));
+            telemetry.update();
             //telemetry.addData("right back cm", "%.2f cm", rob.rightbackSense.getDistance(DistanceUnit.CM));
             //telemetry.update();
             //}
